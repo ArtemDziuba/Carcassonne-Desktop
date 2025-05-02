@@ -10,9 +10,7 @@ public class Board : MonoBehaviour
         if (placedTiles.ContainsKey(position))
             return false;
 
-        Tile testTile = new GameObject("TestTile").AddComponent<Tile>();
-        testTile.Data = tileData;
-        testTile.RotateSegments(rotation);
+        List<Segment> testSegments = CloneAndRotateSegments(tileData.Segments, rotation);
 
         foreach (var dir in new (Vector2Int offset, int sideThis, int sideOther)[]
         {
@@ -25,18 +23,53 @@ public class Board : MonoBehaviour
             Vector2Int neighborPos = position + dir.offset;
             if (placedTiles.TryGetValue(neighborPos, out Tile neighborTile))
             {
-                var segThis = testTile.GetSegments()[dir.sideThis];
+                var segThis = testSegments[dir.sideThis];
                 var segOther = neighborTile.GetSegments()[dir.sideOther];
                 if (segThis.Type != segOther.Type)
                 {
-                    DestroyImmediate(testTile.gameObject);
                     return false;
                 }
             }
         }
 
-        DestroyImmediate(testTile.gameObject);
         return true;
+    }
+
+    private List<Segment> CloneAndRotateSegments(List<Segment> source, int degrees)
+    {
+        int shift = 3 * (degrees / 90);
+        var newSegments = new List<Segment>(new Segment[12]);
+
+        for (int i = 0; i < 12; i++)
+        {
+            int newIndex = (i + shift) % 12;
+            Segment oldSeg = source[i];
+
+            Segment rotated = new Segment
+            {
+                Id = newIndex,
+                Type = oldSeg.Type,
+                HasMeeple = oldSeg.HasMeeple,
+                MeepleOwner = oldSeg.MeepleOwner,
+                ConnectedSegmentIds = new List<int>()
+            };
+
+            newSegments[newIndex] = rotated;
+        }
+
+        for (int i = 0; i < 12; i++)
+        {
+            int oldIndex = (i - shift + 12) % 12;
+            Segment oldSeg = source[oldIndex];
+            Segment newSeg = newSegments[i];
+
+            foreach (var id in oldSeg.ConnectedSegmentIds)
+            {
+                newSeg.ConnectedSegmentIds.Add((id + shift) % 12);
+            }
+        }
+
+        return newSegments;
     }
 
     public void PlaceTile(Vector2Int position, Tile tile)

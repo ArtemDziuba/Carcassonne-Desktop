@@ -12,6 +12,8 @@ public class Tile : MonoBehaviour
 
     void Start()
     {
+        if (!Application.isPlaying) return;
+
         if (Data == null || SpriteRenderer == null)
         {
             Debug.LogError("TileData or SpriteRenderer is missing.");

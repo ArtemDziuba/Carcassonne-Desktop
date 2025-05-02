@@ -2,21 +2,21 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public TileSpawner tileSpawner;
-    public TileData startingTileData;
+    public Tile tilePrefab;
+    public TileData startTileData; // Tile_1_city_road_straight
+    public Board board;
 
     void Start()
     {
-        Screen.SetResolution(1980, 1080, false);
+        Screen.SetResolution(1980, 1080, false); // Віконний режим 1980x1080
 
-        // Створення стартового тайла вручну
-        var tile = Instantiate(tileSpawner.tilePrefab);
-        tile.Data = startingTileData;
-        tile.SpriteRenderer = tile.GetComponent<SpriteRenderer>();
-        tile.SpriteRenderer.sprite = startingTileData.TileSprite;
-        tile.transform.position = new Vector3(0, 0, 0);
+        // Створюємо стартовий тайл у центрі поля
+        Tile startTile = Instantiate(tilePrefab);
+        startTile.Data = startTileData;
+        startTile.SpriteRenderer = startTile.GetComponent<SpriteRenderer>();
+        startTile.SpriteRenderer.sprite = startTileData.TileSprite;
 
-        tileSpawner.board.PlaceTile(Vector2Int.zero, tile);
+        board.PlaceTile(Vector2Int.zero, startTile);
     }
 
     void Update()
