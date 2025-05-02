@@ -27,7 +27,7 @@ public class Tile : MonoBehaviour
     {
         Rotation = (Rotation + 90) % 360;
         UpdateRotation();
-        RotateSegments();
+        RotateSegments(90);
     }
 
     private void UpdateRotation()
@@ -35,11 +35,11 @@ public class Tile : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, 0f, -Rotation);
     }
 
-    private void RotateSegments()
+    public void RotateSegments(int degrees)
     {
-        int shift = 3 * (Rotation / 90); // 3 сегменти на сторону
+        int shift = 3 * (degrees / 90); // 3 сегменти на сторону
 
-        var newSegments = new List<Segment>(new Segment[12]); // створюємо 12 місць
+        var newSegments = new List<Segment>(new Segment[12]);
 
         for (int i = 0; i < 12; i++)
         {
@@ -52,13 +52,13 @@ public class Tile : MonoBehaviour
                 Type = oldSeg.Type,
                 HasMeeple = oldSeg.HasMeeple,
                 MeepleOwner = oldSeg.MeepleOwner,
-                ConnectedSegmentIds = new List<int>() // обробимо нижче
+                ConnectedSegmentIds = new List<int>()
             };
 
             newSegments[newIndex] = rotated;
         }
 
-        // Обробка зв’язків
+        // Встановлюємо зв’язки
         for (int i = 0; i < 12; i++)
         {
             int oldIndex = (i - shift + 12) % 12;

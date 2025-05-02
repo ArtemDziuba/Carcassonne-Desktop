@@ -1,18 +1,20 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public class TileSpawner : MonoBehaviour
 {
     public Tile tilePrefab;
     public Board board;
     public TileDeckManager deck;
+    public PlacementOverlayManager overlayManager;
 
     private Tile currentTile;
     private Camera mainCamera;
     private int tileZ = -5;
 
-    private const float tileWorldSize = 1.0f; // бо 110 px / 100 ppu = 1.1f, без додаткового масштабу
-    private const float halfTile = tileWorldSize / 2.0f;
+    private Vector2Int? snappedGridPos = null;
+    private HashSet<Vector2Int> currentValidPositions = new();
 
     private void Start()
     {
@@ -23,52 +25,57 @@ public class TileSpawner : MonoBehaviour
     {
         if (currentTile == null) return;
 
-        // 1. Позиція миші у world-space
+        // 1. Позиція миші
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(mouseScreenPos);
+        Vector2 mouse2D = new Vector2(mouseWorld.x, mouseWorld.y);
 
-        // 2. Визначаємо логічну позицію на сітці
-        Vector2Int gridPos = new Vector2Int(
-            Mathf.RoundToInt(mouseWorld.x / tileWorldSize),
-            Mathf.RoundToInt(mouseWorld.y / tileWorldSize)
-        );
+        // 2. Пошук найближчої допустимої позиції
+        snappedGridPos = null;
+        float minDist = float.MaxValue;
 
-        // 3. Додаємо зміщення на пів тайла ВИЩЕ і ПРАВІШЕ (тобто +1 до логічної координати)
-        Vector2Int shiftedGridPos = gridPos + Vector2Int.one;
+        foreach (var pos in currentValidPositions)
+        {
+            float dist = Vector2.Distance(mouse2D, new Vector2(pos.x, pos.y));
+            if (dist <= 1.0f && dist < minDist)
+            {
+                snappedGridPos = pos;
+                minDist = dist;
+            }
+        }
 
-        // 4. Візуальна позиція
-        Vector3 snappedWorldPos = new Vector3(
-            shiftedGridPos.x * tileWorldSize + halfTile,
-            shiftedGridPos.y * tileWorldSize + halfTile,
-            tileZ
-        );
+        // 3. Прив?язка тайла
+        if (snappedGridPos != null)
+        {
+            currentTile.transform.position = new Vector3(snappedGridPos.Value.x, snappedGridPos.Value.y, tileZ);
+        }
+        else
+        {
+            currentTile.transform.position = new Vector3(mouse2D.x, mouse2D.y, tileZ);
+        }
 
-        // 4. Переміщення тайла
-        currentTile.transform.position = snappedWorldPos;
-
-        // 5. Поворот — права кнопка миші
+        // 4. Поворот тайла
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
             currentTile.RotateClockwise();
+
+            currentValidPositions = GetValidPlacements(currentTile.Data);
+            overlayManager.ShowAvailablePositions(currentValidPositions);
         }
 
-        // 6. Спроба розміщення — ліва кнопка миші
+        // 5. Розміщення тайла
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            if (board.CanPlaceTileAt(gridPos, currentTile.Data, currentTile.Rotation))
+            if (snappedGridPos != null && board.CanPlaceTileAt(snappedGridPos.Value, currentTile.Data, currentTile.Rotation))
             {
-                currentTile.transform.position = new Vector3(
-                    gridPos.x * tileWorldSize + halfTile,
-                    gridPos.y * tileWorldSize + halfTile,
-                    0 // після розміщення — на площину
-                );
-
-                board.PlaceTile(gridPos, currentTile);
+                board.PlaceTile(snappedGridPos.Value, currentTile);
+                overlayManager.Clear();
+                currentValidPositions.Clear();
                 currentTile = null;
             }
             else
             {
-                Debug.Log("NOPE Неприпустиме місце для тайла.");
+                Debug.Log("NOPE Неможливо поставити тайл у це місце.");
             }
         }
     }
@@ -76,9 +83,7 @@ public class TileSpawner : MonoBehaviour
     public void SpawnNextTile()
     {
         if (currentTile != null)
-        {
             Destroy(currentTile.gameObject);
-        }
 
         TileData next = deck.DrawTile();
         if (next == null)
@@ -93,5 +98,25 @@ public class TileSpawner : MonoBehaviour
         currentTile.SpriteRenderer.sprite = next.TileSprite;
 
         currentTile.transform.position = new Vector3(0, 0, tileZ);
+
+        currentValidPositions = GetValidPlacements(next);
+        overlayManager.ShowAvailablePositions(currentValidPositions);
+    }
+
+    private HashSet<Vector2Int> GetValidPlacements(TileData tileData)
+    {
+        var valid = new HashSet<Vector2Int>();
+        var candidates = board.GetValidPositions();
+
+        for (int rot = 0; rot < 360; rot += 90)
+        {
+            foreach (var pos in candidates)
+            {
+                if (board.CanPlaceTileAt(pos, tileData, rot))
+                    valid.Add(pos);
+            }
+        }
+
+        return valid;
     }
 }
