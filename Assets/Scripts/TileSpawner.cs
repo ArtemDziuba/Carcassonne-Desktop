@@ -7,13 +7,11 @@ public class TileSpawner : MonoBehaviour
     public Tile tilePrefab;
     public Board board;
     public TileDeckManager deck;
+    public PlacementOverlayManager overlayManager;
 
     private Tile currentTile;
     private Camera mainCamera;
     private int tileZ = -5;
-
-    private const float snapDistance = 1.0f; // Дозволена відстань до "примагнічування"
-
     private Vector2Int? snappedGridPos = null;
 
     private void Start()
@@ -25,57 +23,49 @@ public class TileSpawner : MonoBehaviour
     {
         if (currentTile == null) return;
 
-        // 1. Позиція миші
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(mouseScreenPos);
         Vector2 mouse2D = new Vector2(mouseWorld.x, mouseWorld.y);
 
-        // 2. Отримати всі допустимі позиції
-        HashSet<Vector2Int> validPositions = board.GetValidPositions();
-
-        // 3. Знайти найближчу позицію в межах snapDistance
         snappedGridPos = null;
         float minDist = float.MaxValue;
 
-        foreach (var pos in validPositions)
+        foreach (var pos in board.GetAllShadowPositions())
         {
-            Vector2 worldPos = new Vector2(pos.x, pos.y);
-            float dist = Vector2.Distance(mouse2D, worldPos);
-            if (dist <= snapDistance && dist < minDist)
+            ShadowTileData shadow = board.GetShadowAt(pos);
+            if (shadow != null && shadow.Matches(currentTile.Data, currentTile.Rotation))
             {
-                snappedGridPos = pos;
-                minDist = dist;
+                float dist = Vector2.Distance(mouse2D, pos);
+                if (dist < 1.0f && dist < minDist)
+                {
+                    snappedGridPos = pos;
+                    minDist = dist;
+                }
             }
         }
 
-        // 4. Якщо примагнічено — переміщаємо тайл до цієї позиції
-        if (snappedGridPos != null)
-        {
+        if (snappedGridPos.HasValue)
             currentTile.transform.position = new Vector3(snappedGridPos.Value.x, snappedGridPos.Value.y, tileZ);
-        }
         else
-        {
-            // Інакше слідуємо точно за курсором
             currentTile.transform.position = new Vector3(mouse2D.x, mouse2D.y, tileZ);
-        }
 
-        // 5. Поворот
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
             currentTile.RotateClockwise();
+            ShowMatchingShadowTiles();
         }
 
-        // 6. Спроба розмістити
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            if (snappedGridPos != null && board.CanPlaceTileAt(snappedGridPos.Value, currentTile.Data, currentTile.Rotation))
+            if (snappedGridPos.HasValue)
             {
                 board.PlaceTile(snappedGridPos.Value, currentTile);
+                overlayManager.Clear();
                 currentTile = null;
             }
             else
             {
-                Debug.Log("Nope Неможливо поставити тайл у це місце.");
+                Debug.Log("Nope — неможливо поставити тайл у це місце.");
             }
         }
     }
@@ -96,7 +86,22 @@ public class TileSpawner : MonoBehaviour
         currentTile.Data = next;
         currentTile.SpriteRenderer = currentTile.GetComponent<SpriteRenderer>();
         currentTile.SpriteRenderer.sprite = next.TileSprite;
-
         currentTile.transform.position = new Vector3(0, 0, tileZ);
+
+        ShowMatchingShadowTiles();
+    }
+
+    private void ShowMatchingShadowTiles()
+    {
+        var positions = new List<Vector2Int>();
+
+        foreach (var pos in board.GetAllShadowPositions())
+        {
+            var shadow = board.GetShadowAt(pos);
+            if (shadow != null && shadow.Matches(currentTile.Data, currentTile.Rotation))
+                positions.Add(pos);
+        }
+
+        overlayManager.ShowAvailablePositions(positions);
     }
 }

@@ -40,7 +40,6 @@ public class Tile : MonoBehaviour
     public void RotateSegments(int degrees)
     {
         int shift = 3 * (degrees / 90); // 3 сегменти на сторону
-
         var newSegments = new List<Segment>(new Segment[12]);
 
         for (int i = 0; i < 12; i++)
