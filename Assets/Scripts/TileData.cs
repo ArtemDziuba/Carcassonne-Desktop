@@ -5,7 +5,7 @@ using UnityEngine;
 public class TileData : ScriptableObject
 {
     public Sprite TileSprite;
-    public List<Segment> Segments; // 12 сегментів за годинниковою стрілкою
+    public List<Segment> Segments;
 
     public Segment[] GetRotatedSegments(int rotation)
     {
@@ -26,7 +26,6 @@ public class TileData : ScriptableObject
             };
         }
 
-        // обробка зв'язків
         for (int i = 0; i < 12; i++)
         {
             int oldIndex = (i - shift + 12) % 12;

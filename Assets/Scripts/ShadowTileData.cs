@@ -11,7 +11,6 @@ public class ShadowTileData
         Position = position;
         Segments = new List<Segment>();
 
-        // ≤н≥ц≥ал≥зуЇмо вс≥ 12 сегмент≥в €к null (€вно)
         for (int i = 0; i < 12; i++)
             Segments.Add(null);
     }
@@ -20,26 +19,69 @@ public class ShadowTileData
     {
         if (index < 0 || index >= 12) return;
 
-        Segments[index] = new Segment
+        if (Segments[index] == null)
         {
-            Id = index,
-            Type = type,
-            ConnectedSegmentIds = new List<int>()
-        };
+            Segments[index] = new Segment
+            {
+                Id = index,
+                Type = type,
+                ConnectedSegmentIds = new List<int>()
+            };
+        }
+        else
+        {
+            Segments[index].Type = type; // оновлюЇмо тип, €кщо вже Ї
+        }
     }
 
     public bool Matches(TileData tileData, int rotation)
     {
-        List<Segment> rotated = new List<Segment>(tileData.GetRotatedSegments(rotation));
+        Segment[] rotated = tileData.GetRotatedSegments(rotation);
 
-        for (int i = 0; i < 12; i++)
+        // ≤ндекси стор≥н: top, right, bottom, left
+        int[][] tileSideIndices = new int[][]
         {
-            Segment shadowSeg = Segments[i];
-            if (shadowSeg == null) continue; // невизначена вершина
+        new int[] { 0, 1, 2 },    // низ Ч це верх shadow
+        new int[] { 3, 4, 5 },    // л≥во Ч це право shadow
+        new int[] { 6, 7, 8 },    // верх Ч це низ shadow
+        new int[] { 9, 10, 11 }   // право Ч це л≥во shadow
+        };
 
-            Segment tileSeg = rotated[i];
-            if (shadowSeg.Type != tileSeg.Type)
-                return false;
+        int[][] shadowSideIndices = new int[][]
+        {
+        new int[] { 0, 1, 2 },    // низ Ч це верх shadow
+        new int[] { 3, 4, 5 },    // л≥во Ч це право shadow
+        new int[] { 6, 7, 8 },    // верх Ч це низ shadow
+        new int[] { 9, 10, 11 }   // право Ч це л≥во shadow
+        };
+
+        for (int side = 0; side < 4; side++)
+        {
+            bool isDefined = false;
+
+            // перев≥р€Їмо, чи Ї хоч один визначений сегмент з ц≥Їњ сторони в shadow
+            foreach (int i in shadowSideIndices[side])
+            {
+                if (Segments[i] != null)
+                {
+                    isDefined = true;
+                    break;
+                }
+            }
+
+            // €кщо Ї Ч перев≥р€Їмо повний зб≥г з в≥дпов≥дною стороною tile
+            if (isDefined)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Segment shadowSeg = Segments[shadowSideIndices[side][i]];
+                    Segment tileSeg = rotated[tileSideIndices[side][i]];
+
+                    if (shadowSeg == null) continue;
+                    if (tileSeg == null || tileSeg.Type != shadowSeg.Type)
+                        return false;
+                }
+            }
         }
 
         return true;

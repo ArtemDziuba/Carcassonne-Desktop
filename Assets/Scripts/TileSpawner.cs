@@ -32,6 +32,8 @@ public class TileSpawner : MonoBehaviour
 
         foreach (var pos in board.GetAllShadowPositions())
         {
+            if (board.GetTileAt(pos)) continue;
+
             ShadowTileData shadow = board.GetShadowAt(pos);
             if (shadow != null && shadow.Matches(currentTile.Data, currentTile.Rotation))
             {
@@ -65,7 +67,7 @@ public class TileSpawner : MonoBehaviour
             }
             else
             {
-                Debug.Log("Nope — неможливо поставити тайл у це місце.");
+                Debug.Log("Неможливо поставити тайл: невірна позиція.");
             }
         }
     }
@@ -83,9 +85,7 @@ public class TileSpawner : MonoBehaviour
         }
 
         currentTile = Instantiate(tilePrefab);
-        currentTile.Data = next;
-        currentTile.SpriteRenderer = currentTile.GetComponent<SpriteRenderer>();
-        currentTile.SpriteRenderer.sprite = next.TileSprite;
+        currentTile.Initialize(next);
         currentTile.transform.position = new Vector3(0, 0, tileZ);
 
         ShowMatchingShadowTiles();
@@ -97,6 +97,8 @@ public class TileSpawner : MonoBehaviour
 
         foreach (var pos in board.GetAllShadowPositions())
         {
+            if (board.GetTileAt(pos)) continue;
+
             var shadow = board.GetShadowAt(pos);
             if (shadow != null && shadow.Matches(currentTile.Data, currentTile.Rotation))
                 positions.Add(pos);

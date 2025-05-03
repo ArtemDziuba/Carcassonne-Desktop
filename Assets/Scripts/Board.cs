@@ -9,7 +9,6 @@ public class Board : MonoBehaviour
     public bool CanPlaceTileAt(Vector2Int position, TileData tileData, int rotation)
     {
         if (placedTiles.ContainsKey(position)) return false;
-
         if (!shadowTiles.TryGetValue(position, out var shadow)) return false;
 
         return shadow.Matches(tileData, rotation);
@@ -17,15 +16,20 @@ public class Board : MonoBehaviour
 
     public void PlaceTile(Vector2Int position, Tile tile)
     {
-        placedTiles[position] = tile;
-        tile.transform.position = new Vector3(position.x, position.y, 0);
-
-        // Захист від NullReferenceException
         if (tile == null || tile.Data == null)
         {
             Debug.LogError($"Неможливо розмістити тайл у позиції {position}: Tile або Tile.Data дорівнює null.");
             return;
         }
+
+        if (placedTiles.ContainsKey(position))
+        {
+            Debug.LogError($"Спроба розмістити тайл у вже зайнятій позиції {position}.");
+            return;
+        }
+
+        placedTiles[position] = tile;
+        tile.transform.position = new Vector3(position.x, position.y, 0);
 
         List<Segment> segments = tile.GetSegments();
         if (segments == null || segments.Count != 12)
@@ -34,58 +38,43 @@ public class Board : MonoBehaviour
             return;
         }
 
-        // Видаляємо зайвий shadow
         shadowTiles.Remove(position);
 
-        // Генеруємо shadow tiles навколо нового тайлу
-        foreach (var dir in new Vector2Int[]
-        {
-        Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
-        })
-        {
-            Vector2Int neighborPos = position + dir;
-
-            if (!placedTiles.ContainsKey(neighborPos) && !shadowTiles.ContainsKey(neighborPos))
-            {
-                ShadowTileData shadow = new ShadowTileData(neighborPos);
-
-                int thisSide = GetSideIndex(dir);
-                int neighborSide = GetSideIndex(-dir);
-                Segment neighborSeg = segments[neighborSide];
-
-                shadow.SetSegment(thisSide, neighborSeg.Type);
-                shadowTiles[neighborPos] = shadow;
-            }
-        }
+        GenerateShadowsAround(position);
     }
-
 
     public void GenerateShadowsAround(Vector2Int position)
     {
-        if (!placedTiles.ContainsKey(position)) return;
+        if (!placedTiles.TryGetValue(position, out Tile tile)) return;
 
-        Tile tile = placedTiles[position];
+        List<Segment> segments = tile.GetSegments();
 
-        foreach (var dir in new Vector2Int[]
+        foreach (var dir in new Vector2Int[] {
+        Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left })
         {
-            Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
-        })
-        {
-            Vector2Int neighborPos = position + dir;
+            Vector2Int neighborPos = position - dir;
 
-            if (!placedTiles.ContainsKey(neighborPos) && !shadowTiles.ContainsKey(neighborPos))
+            int thisSideStart = GetSideIndex(dir);
+            int neighborSideStart = GetSideIndex(-dir);
+
+            if (!shadowTiles.TryGetValue(neighborPos, out var shadow))
             {
-                ShadowTileData shadow = new ShadowTileData(neighborPos);
-
-                int thisSide = GetSideIndex(dir);
-                int neighborSide = GetSideIndex(-dir);
-                Segment neighborSeg = tile.GetSegments()[neighborSide];
-
-                shadow.SetSegment(thisSide, neighborSeg.Type);
+                shadow = new ShadowTileData(neighborPos);
                 shadowTiles[neighborPos] = shadow;
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                Segment sourceSegment = segments[neighborSideStart + i];
+                if (sourceSegment != null)
+                {
+                    shadow.SetSegment(thisSideStart + i, sourceSegment.Type);
+                }
             }
         }
     }
+
+
 
     public ShadowTileData GetShadowAt(Vector2Int position)
     {
