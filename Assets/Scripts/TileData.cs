@@ -5,7 +5,16 @@ using UnityEngine;
 public class TileData : ScriptableObject
 {
     public Sprite TileSprite;
+
+    // 12 сегментів тайла
     public List<Segment> Segments;
+
+    // ДОДАНІ ПОЛЯ 
+    public bool HasMonastery;
+    public bool HasShield;
+
+    [Tooltip("Слоти, куди гравець може поставити міпла")]
+    public List<MeeplePlacementSlotData> MeepleSlots;
 
     public Segment[] GetRotatedSegments(int rotation)
     {
@@ -26,6 +35,7 @@ public class TileData : ScriptableObject
             };
         }
 
+        // обробка зв’язків
         for (int i = 0; i < 12; i++)
         {
             int oldIndex = (i - shift + 12) % 12;

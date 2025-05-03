@@ -24,6 +24,7 @@ public class Tile : MonoBehaviour
         rotatedSegments = CloneSegments(Data.Segments);
         Rotation = 0;
         UpdateRotation();
+        CreateMeepleSlots();
     }
 
     public void RotateClockwise()
@@ -31,6 +32,7 @@ public class Tile : MonoBehaviour
         Rotation = (Rotation + 90) % 360;
         RotateSegments(90);
         UpdateRotation();
+        CreateMeepleSlots(); // пересоздаємо слоти після повороту
     }
 
     private void UpdateRotation()
@@ -89,5 +91,48 @@ public class Tile : MonoBehaviour
     public List<Segment> GetSegments()
     {
         return rotatedSegments;
+    }
+
+    public void CreateMeepleSlots()
+    {
+        // Видаляємо старі слоти (якщо були)
+        foreach (Transform child in transform)
+        {
+            if (child.GetComponent<MeeplePlacementSlot>())
+                Destroy(child.gameObject);
+        }
+
+        foreach (var slotData in Data.MeepleSlots)
+        {
+            GameObject slotObj = new GameObject("MeepleSlot");
+            slotObj.transform.SetParent(this.transform);
+            slotObj.transform.localPosition = CalculateSlotPosition(slotData);
+
+            Debug.Log($"Створено слот на позиції: {slotObj.transform.localPosition}");
+
+            var slot = slotObj.AddComponent<MeeplePlacementSlot>();
+            slot.Type = slotData.Type;
+            slot.CoveredSegments = new List<int>(slotData.CoveredSegmentIds);
+
+            // Додаємо BoxCollider2D для взаємодії з мишею
+            var collider = slotObj.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            collider.size = new Vector2(0.2f, 0.2f); // Адаптуй за потреби
+        }
+    }
+
+
+    private Vector3 CalculateSlotPosition(MeeplePlacementSlotData slotData)
+    {
+        int centerId = slotData.CoveredSegmentIds[slotData.CoveredSegmentIds.Count / 2];
+        return GetSegmentLocalPosition(centerId);
+    }
+
+    private Vector3 GetSegmentLocalPosition(int segmentId)
+    {
+        float radius = 0.3f;
+        float angle = ((segmentId + Rotation / 30f) / 12f) * 360f;
+        float rad = angle * Mathf.Deg2Rad;
+        return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
     }
 }
