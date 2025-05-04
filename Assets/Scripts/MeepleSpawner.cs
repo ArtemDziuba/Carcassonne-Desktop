@@ -48,23 +48,43 @@ public class MeepleSpawner : MonoBehaviour
 
     private void TryPlaceMeeple(Vector2 mouseWorldPos)
     {
+        // Створення променя від миші у світ
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-        RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
+        int layerMask = LayerMask.GetMask("Default"); // тільки Default — без Meeple
+        RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, layerMask);
 
-        if (hit.collider != null)
+        if (hit.collider == null)
         {
-            MeeplePlacementSlot slot = hit.collider.GetComponent<MeeplePlacementSlot>();
-            if (slot != null && !slot.IsOccupied)
-            {
-                currentMeeple.transform.position = slot.transform.position;
-                slot.IsOccupied = true;
-                slot.CurrentMeeple = currentMeeple;
-                isPlacing = false;
-                currentMeeple = null;
-                return;
-            }
+            Debug.Log($"[MeepleSpawner] Нічого не знайдено в точці: {mouseWorldPos}");
+            return;
         }
 
-        Debug.Log("Неможливо розмістити міпла: не знайдено відповідного слоту.");
+        Debug.Log($"[MeepleSpawner] Натиснуто на об'єкт: {hit.collider.name}");
+
+        MeeplePlacementSlot slot = hit.collider.GetComponent<MeeplePlacementSlot>();
+        if (slot == null)
+        {
+            Debug.Log("[MeepleSpawner] Об'єкт не є MeeplePlacementSlot.");
+            return;
+        }
+
+        if (slot.IsOccupied)
+        {
+            Debug.Log("[MeepleSpawner] Слот вже зайнятий.");
+            return;
+        }
+
+        // Успішне розміщення міпла
+        currentMeeple.transform.position = slot.transform.position;
+        slot.IsOccupied = true;
+        var sr = slot.GetComponent<SpriteRenderer>();
+        if (sr != null)
+            sr.enabled = false;
+        slot.CurrentMeeple = currentMeeple;
+        isPlacing = false;
+        currentMeeple = null;
+
+        Debug.Log($"[MeepleSpawner] Міпл розміщено на слоті: {slot.transform.position}");
     }
+
 }

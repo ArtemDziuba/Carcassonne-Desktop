@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc0703872f166d54b91af4895c02b1d9, type: 3}
   m_Name: Tile_1_city
   m_EditorClassIdentifier: 
-  TileId: tile_1_city
   TileSprite: {fileID: 21300000, guid: 639fe4965b578aa42912969c4f7816e5, type: 3}
   Segments:
   - Id: 0
@@ -75,10 +74,10 @@ MonoBehaviour:
     ConnectedSegmentIds: 030000000400000005000000060000000700000008000000090000000a000000
     HasMeeple: 0
     MeepleOwner: {fileID: 0}
+  HasMonastery: 0
+  HasShield: 0
   MeepleSlots:
   - Type: 0
     CoveredSegmentIds: 000000000100000002000000
   - Type: 2
     CoveredSegmentIds: 030000000400000005000000060000000700000008000000090000000a0000000b000000
-  HasMonastery: 0
-  HasShield: 0

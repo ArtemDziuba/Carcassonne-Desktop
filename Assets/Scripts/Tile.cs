@@ -124,6 +124,12 @@ public class Tile : MonoBehaviour
 
     private Vector3 CalculateSlotPosition(MeeplePlacementSlotData slotData)
     {
+        if (slotData.CoveredSegmentIds == null || slotData.CoveredSegmentIds.Count == 0)
+        {
+            // якщо слот без сегмент≥в (наприклад, монастир) Ч ставимо м≥пла в центр
+            return Vector3.zero;
+        }
+
         int centerId = slotData.CoveredSegmentIds[slotData.CoveredSegmentIds.Count / 2];
         return GetSegmentLocalPosition(centerId);
     }
@@ -131,7 +137,7 @@ public class Tile : MonoBehaviour
     private Vector3 GetSegmentLocalPosition(int segmentId)
     {
         float radius = 0.3f;
-        float angle = ((segmentId + Rotation / 30f) / 12f) * 360f;
+        float angle = (segmentId / 12f) * 360f;
         float rad = angle * Mathf.Deg2Rad;
         return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
     }
