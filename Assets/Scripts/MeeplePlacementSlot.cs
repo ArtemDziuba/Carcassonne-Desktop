@@ -7,7 +7,7 @@ public class MeeplePlacementSlot : MonoBehaviour
     public TerrainType Type;
     public List<int> CoveredSegments;
 
-    [HideInInspector] public bool IsOccupied = false;
+    public bool IsOccupied = false;
     [HideInInspector] public GameObject CurrentMeeple;
 
     private SpriteRenderer highlightRenderer;

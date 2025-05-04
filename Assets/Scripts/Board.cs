@@ -31,6 +31,12 @@ public class Board : MonoBehaviour
         placedTiles[position] = tile;
         tile.transform.position = new Vector3(position.x, position.y, 0);
 
+        // Очистити всі інші слоти
+        ClearAllMeepleSlotsExcept(tile);
+
+        // Створити нові слоти тільки на цьому тайлі
+        tile.CreateMeepleSlots();
+
         List<Segment> segments = tile.GetSegments();
         if (segments == null || segments.Count != 12)
         {
@@ -98,5 +104,14 @@ public class Board : MonoBehaviour
         if (dir == Vector2Int.down) return 6;
         if (dir == Vector2Int.left) return 9;
         return -1;
+    }
+
+    public void ClearAllMeepleSlotsExcept(Tile except)
+    {
+        foreach (var tile in placedTiles.Values)
+        {
+            if (tile != except)
+                tile.ClearMeepleSlots();
+        }
     }
 }

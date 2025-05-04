@@ -125,20 +125,52 @@ public class Tile : MonoBehaviour
     private Vector3 CalculateSlotPosition(MeeplePlacementSlotData slotData)
     {
         if (slotData.CoveredSegmentIds == null || slotData.CoveredSegmentIds.Count == 0)
-        {
-            // якщо слот без сегмент≥в (наприклад, монастир) Ч ставимо м≥пла в центр
             return Vector3.zero;
+
+        var ids = new List<int>(slotData.CoveredSegmentIds);
+
+        // ¬пливаЇ на поворот дороги - робить слот на початку дороги
+        if (ids.Count == 2 && Mathf.Abs(ids[0] - ids[1]) == 3)
+        {
+            var pos2 = GetSegmentLocalPosition(ids[1]);
+
+            return new Vector3(pos2.x, pos2.y + 0.1f, 0);
         }
 
-        int centerId = slotData.CoveredSegmentIds[slotData.CoveredSegmentIds.Count / 2];
-        return GetSegmentLocalPosition(centerId);
+        // ¬пливаЇ на обидва типи монастир≥в та city_4_sides, 
+        // робить ф≥ксовану точку дл€ пол€/м≥ста справа зверху
+        if (ids.Count >= 11)
+        {
+            var pos1 = GetSegmentLocalPosition(ids[0]);
+
+            return new Vector3(pos1.x, pos1.y * 0.7f, 0);
+        }
+
+        // ƒл€ вс≥х ≥нших вар≥ант≥в слот≥в беретьс€ середнЇ арифметичне покритих вершин (сегмен≥тв)
+        Vector3 avg = Vector3.zero;
+        foreach (int id in ids)
+            avg += GetSegmentLocalPosition(id);
+         
+        avg.x *= -1;
+        return avg / ids.Count;
     }
+
+
 
     private Vector3 GetSegmentLocalPosition(int segmentId)
     {
-        float radius = 0.3f;
-        float angle = (segmentId / 12f) * 360f;
+        float radius = 0.5f;
+        float angle = (segmentId / 12f) * 360f + 60f;
         float rad = angle * Mathf.Deg2Rad;
         return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
+    }
+
+    public void ClearMeepleSlots()
+    {
+        foreach (Transform child in transform)
+        {
+            if (child.GetComponent<MeeplePlacementSlot>())
+                Destroy(child.gameObject);
+        }
     }
 }
