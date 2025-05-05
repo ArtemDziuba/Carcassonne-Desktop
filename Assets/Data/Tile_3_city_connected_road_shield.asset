@@ -75,5 +75,13 @@ MonoBehaviour:
     HasMeeple: 0
     MeepleOwner: {fileID: 0}
   HasMonastery: 0
-  HasShield: 0
-  MeepleSlots: []
+  HasShield: 1
+  MeepleSlots:
+  - Type: 0
+    CoveredSegmentIds: 000000000100000002000000030000000400000005000000090000000a0000000b000000
+  - Type: 2
+    CoveredSegmentIds: 06000000
+  - Type: 1
+    CoveredSegmentIds: 00000000000000000000000000000000000000000000000000000000
+  - Type: 2
+    CoveredSegmentIds: 0000000000000000000000000000000000000000000000000000000000000000
