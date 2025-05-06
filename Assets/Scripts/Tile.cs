@@ -108,11 +108,16 @@ public class Tile : MonoBehaviour
             slotObj.transform.SetParent(this.transform);
             slotObj.transform.localPosition = CalculateSlotPosition(slotData);
 
-            Debug.Log($"Створено слот на позиції: {slotObj.transform.localPosition}");
-
             var slot = slotObj.AddComponent<MeeplePlacementSlot>();
             slot.Type = slotData.Type;
-            slot.CoveredSegments = new List<int>(slotData.CoveredSegmentIds);
+
+            // Обчислюємо повернуті сегменти
+            slot.CoveredSegments = new List<int>();
+            foreach (int originalId in slotData.CoveredSegmentIds)
+            {
+                int rotatedId = (originalId + (Rotation / 30)) % 12;
+                slot.CoveredSegments.Add(rotatedId);
+            }
 
             // Додаємо BoxCollider2D для взаємодії з мишею
             var collider = slotObj.AddComponent<BoxCollider2D>();

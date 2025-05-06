@@ -1142,6 +1142,8 @@ MonoBehaviour:
   currentPlayerIndex: 0
   snapDistance: 0.3
   turnManager: {fileID: 804632154}
+  board: {fileID: 400462396}
+  playerManager: {fileID: 33227488}
 --- !u!4 &1093546659
 Transform:
   m_ObjectHideFlags: 0
