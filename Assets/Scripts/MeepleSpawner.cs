@@ -7,6 +7,7 @@ public class MeepleSpawner : MonoBehaviour
     public Sprite[] meepleSprites; // 5 кольорів міплів
     public int currentPlayerIndex = 0;
     public float snapDistance = 0.3f; // відстань для "прилипання"
+    public TurnManager turnManager; // перетягнути вручну в інспекторі
 
     private GameObject currentMeeple;
     private Camera mainCamera;
@@ -93,6 +94,8 @@ public class MeepleSpawner : MonoBehaviour
         currentMeeple.transform.position = hoveredSlot.transform.position;
         isPlacing = false;
         currentMeeple = null;
+
+        turnManager.OnMeeplePlaced();
 
         Debug.Log($"[MeepleSpawner] Міпл розміщено на слоті: {hoveredSlot.transform.position}");
     }
