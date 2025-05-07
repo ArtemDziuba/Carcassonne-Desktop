@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 [System.Serializable]
 public class Segment
@@ -9,4 +10,6 @@ public class Segment
 
     public bool HasMeeple = false;
     public Player MeepleOwner = null;
+
+    [HideInInspector] public GameObject MeepleObject;
 }

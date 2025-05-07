@@ -87,45 +87,49 @@ public class MeepleSpawner : MonoBehaviour
     {
         if (hoveredSlot == null) return;
 
+        // Отримуємо тайл і його позицію
         Tile tile = hoveredSlot.transform.parent.GetComponent<Tile>();
         if (tile == null) return;
-
         Vector2Int tilePos = new Vector2Int(
             Mathf.RoundToInt(tile.transform.position.x),
             Mathf.RoundToInt(tile.transform.position.y)
         );
 
         // Перевірка: чи структура вже зайнята
-        bool occupied = StructureAnalyzer.IsStructureOccupied(board, tilePos, hoveredSlot.CoveredSegments);
-        if (occupied)
+        if (StructureAnalyzer.IsStructureOccupied(board, tilePos, hoveredSlot.CoveredSegments))
         {
             Debug.Log("[MeepleSpawner] Структура вже зайнята, міпл не може бути розміщений.");
             return;
         }
 
-        // Прив'язка міпла до слота
+        // 1) Прив'язуємо міпла до слоту
+        hoveredSlot.IsOccupied = true;
         hoveredSlot.CurrentMeeple = currentMeeple;
+        hoveredSlot.MeepleOwner = playerManager.GetCurrentPlayer();
         currentMeeple.transform.position = hoveredSlot.transform.position;
-        isPlacing = false;
-        currentMeeple = null;
 
-        // Збереження стану міпла в сегментах
+        // 2) Позначаємо сегменти (для доріг/міст)
         foreach (int segId in hoveredSlot.CoveredSegments)
         {
             Segment seg = tile.GetSegments()[segId];
             seg.HasMeeple = true;
             seg.MeepleOwner = playerManager.GetCurrentPlayer();
+
+            seg.MeepleObject = hoveredSlot.CurrentMeeple;
         }
 
-        // Прибираємо візуальне підсвічування
+        // Прибираємо підсвічування слоту
         var sr = hoveredSlot.GetComponent<SpriteRenderer>();
-        if (sr != null)
-            sr.enabled = false;
+        if (sr != null) sr.enabled = false;
+
+        // Завершуємо фазу розміщення
+        isPlacing = false;
+        currentMeeple = null;
 
         turnManager.OnMeeplePlaced();
-
-        Debug.Log($"[MeepleSpawner] Міпл розміщено на слоті: {hoveredSlot.transform.position}");
+        Debug.Log($"[MeepleSpawner] Міпл розміщено на {tilePos} слотом covering {string.Join(",", hoveredSlot.CoveredSegments)}");
     }
+
 
 
 }

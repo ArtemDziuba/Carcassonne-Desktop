@@ -3,6 +3,7 @@ public class Player
     public int PlayerId { get; private set; }
     public int MeepleSpriteIndex { get; private set; }
     public int MeepleCount { get; private set; } = 7;
+    public int Score { get; set; } = 0;
 
     public Player(int id, int spriteIndex)
     {

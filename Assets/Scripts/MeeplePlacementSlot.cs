@@ -9,6 +9,7 @@ public class MeeplePlacementSlot : MonoBehaviour
 
     public bool IsOccupied = false;
     [HideInInspector] public GameObject CurrentMeeple;
+    [HideInInspector] public Player MeepleOwner;  // ? нове поле
 
     private SpriteRenderer highlightRenderer;
 
@@ -19,12 +20,27 @@ public class MeeplePlacementSlot : MonoBehaviour
         visual.transform.SetParent(transform);
         visual.transform.localPosition = Vector3.zero;
         visual.transform.localRotation = Quaternion.identity;
-        visual.transform.localScale = new Vector3(0.15f, 0.15f, 1f); // меншого розміру
+        visual.transform.localScale = new Vector3(0.15f, 0.15f, 1f);
 
         highlightRenderer = visual.AddComponent<SpriteRenderer>();
-        highlightRenderer.sprite = Resources.Load<Sprite>("Sprites/Textures/meeplePlacementPoint"); // правильний шлях
-        highlightRenderer.color = new Color(1f, 1f, 1f, 0.8f); // прозорий білий
-        highlightRenderer.sortingOrder = 2; // поверх тайлу
+        highlightRenderer.sprite = Resources.Load<Sprite>("Sprites/Textures/meeplePlacementPoint");
+        highlightRenderer.color = new Color(1f, 1f, 1f, 0.8f);
+        highlightRenderer.sortingOrder = 2;
+    }
+
+    /// <summary>
+    /// Видаляє міпла з поля та очищує слот.
+    /// </summary>
+    public void RemoveMeeple()
+    {
+        if (CurrentMeeple != null)
+        {
+            Destroy(CurrentMeeple);
+            CurrentMeeple = null;
+        }
+        IsOccupied = false;
+        MeepleOwner = null;
+        // за бажанням повернути highlightRenderer.enabled = true;
     }
 
     private void OnDrawGizmos()

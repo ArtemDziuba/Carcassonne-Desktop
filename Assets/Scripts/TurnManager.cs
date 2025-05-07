@@ -104,6 +104,8 @@ public class TurnManager : MonoBehaviour
     {
         if (!tilePlaced) return;
 
+        StructureScorer.ScoreCompletedStructures(board, playerManager, uiManager);
+
         playerManager.NextPlayer();
         StartTurn();
     }
@@ -120,4 +122,5 @@ public class TurnManager : MonoBehaviour
         // Оновлюємо UI
         uiManager.UpdatePlayerMeeples(playerManager.CurrentPlayerIndex, currentPlayer.MeepleCount);
     }
+
 }
