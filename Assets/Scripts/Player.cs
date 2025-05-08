@@ -5,6 +5,8 @@ public class Player
     public int MeepleCount { get; private set; } = 7;
     public int Score { get; set; } = 0;
 
+    public string Name => $"ֳנאגוצü {PlayerId + 1}";
+
     public Player(int id, int spriteIndex)
     {
         PlayerId = id;

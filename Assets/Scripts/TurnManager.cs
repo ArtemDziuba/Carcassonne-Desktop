@@ -150,6 +150,6 @@ public class TurnManager : MonoBehaviour
         endTurnBtn.interactable = false;
 
         // Показуємо екран «Гра завершена»
-        // uiManager.ShowGameOverUI();
+        uiManager.ShowGameOverUI();
     }
 }
