@@ -4,121 +4,152 @@ using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
+    [Header("Managers & Spawners")]
     public PlayerManager playerManager;
     public TileSpawner tileSpawner;
     public MeepleSpawner meepleSpawner;
+    public TileDeckManager deckManager;
     public Board board;
+    public PlayerUIManager uiManager;
 
+    [Header("UI Elements")]
     public Button chooseTileBtn;
     public Button placeMeepleBtn;
     public Button endTurnBtn;
-
     public TextMeshProUGUI chooseTileBtnText;
-    public TileDeckManager deckManager;
-    public PlayerUIManager uiManager;
 
     private bool tilePlaced = false;
     private bool meeplePlaced = false;
 
     void Start()
     {
+        // Створюємо гравців та ініціалізуємо UI
         playerManager.CreatePlayers(playerManager.playerCount);
-
         uiManager.InitializeUI(playerManager.Players);
-        uiManager.SetActivePlayer(playerManager.CurrentPlayerIndex);
 
         chooseTileBtn.onClick.AddListener(OnChooseTile);
         placeMeepleBtn.onClick.AddListener(OnPlaceMeeple);
         endTurnBtn.onClick.AddListener(OnEndTurn);
 
-        StartTurn();
+        NextTurnSetup();
     }
 
-    void StartTurn()
+    /// <summary>
+    /// Підготовка до нового ходу.
+    /// </summary>
+    private void NextTurnSetup()
     {
-        var currentPlayer = playerManager.GetCurrentPlayer();
-
-        Debug.Log($"Початок ходу гравця {currentPlayer.PlayerId}");
+        // Якщо колода порожня одразу до початку ходу, гра завершується
+        if (deckManager.IsEmpty())
+        {
+            EndGame();
+            return;
+        }
 
         tilePlaced = false;
         meeplePlaced = false;
+
+        var current = playerManager.GetCurrentPlayer();
+        uiManager.SetActivePlayer(playerManager.CurrentPlayerIndex);
 
         chooseTileBtn.interactable = true;
         placeMeepleBtn.interactable = false;
         endTurnBtn.interactable = false;
 
+        // Оновлюємо лічильник тайлів на кнопці
+        chooseTileBtnText.text = deckManager.TilesRemaining.ToString();
+
+        // Прибираємо слоти підстав mіплів
         board.ClearAllMeepleSlotsExcept(null);
-
-        // Оновлюємо текст кнопки
-        chooseTileBtnText.text = $"{deckManager.fullDeck.Count}";
-
-        // Показати активного гравця
-        uiManager.SetActivePlayer(playerManager.CurrentPlayerIndex);
     }
 
-    void OnChooseTile()
+    /// <summary>
+    /// Гравець вибирає наступний тайл.
+    /// </summary>
+    private void OnChooseTile()
     {
+        // Витягаємо та спавнимо тайл
         tileSpawner.SpawnNextTile();
 
+        tilePlaced = true;
         chooseTileBtn.interactable = false;
 
-        var currentPlayer = playerManager.GetCurrentPlayer();
-
-        // Якщо є міпли — кнопка активна, інакше — неактивна + очищення слотів
-        if (currentPlayer.HasMeeples())
-        {
-            placeMeepleBtn.interactable = true;
-        }
-        else
-        {
-            placeMeepleBtn.interactable = false;
-            board.ClearAllMeepleSlotsExcept(null);
-            Debug.Log($"[TurnManager] У гравця {currentPlayer.PlayerId} немає міплів.");
-        }
-
+        // Оновлюємо кнопки
+        var current = playerManager.GetCurrentPlayer();
+        placeMeepleBtn.interactable = current.HasMeeples();
         endTurnBtn.interactable = true;
-
-        tilePlaced = true;
-
-        chooseTileBtnText.text = $"{deckManager.fullDeck.Count}";
+        chooseTileBtnText.text = deckManager.TilesRemaining.ToString();
     }
 
-    void OnPlaceMeeple()
+    /// <summary>
+    /// Гравець переходить до розміщення міпла.
+    /// </summary>
+    private void OnPlaceMeeple()
     {
-        var currentPlayer = playerManager.GetCurrentPlayer();
-
-        if (!currentPlayer.HasMeeples())
+        var current = playerManager.GetCurrentPlayer();
+        if (!current.HasMeeples())
         {
-            Debug.Log($"[TurnManager] У гравця {currentPlayer.PlayerId} немає міплів.");
-            board.ClearAllMeepleSlotsExcept(null);
+            Debug.LogWarning($"[TurnManager] Player {current.PlayerId} has no meeples left.");
             return;
         }
 
-        meepleSpawner.StartPlacingMeeple();
         placeMeepleBtn.interactable = false;
+        endTurnBtn.interactable = false;
+        meepleSpawner.StartPlacingMeeple();
     }
 
-    void OnEndTurn()
+    /// <summary>
+    /// Гравець натиснув «End Turn».
+    /// </summary>
+    private void OnEndTurn()
     {
         if (!tilePlaced) return;
 
+        // Підрахунок очок за щойно завершені структури
         StructureScorer.ScoreCompletedStructures(board, playerManager, uiManager);
 
+        // Перевіряємо кінець гри
+        if (deckManager.IsEmpty())
+        {
+            EndGame();
+            return;
+        }
+
+        // Повертаємо хід наступному гравцю
         playerManager.NextPlayer();
-        StartTurn();
+        NextTurnSetup();
     }
 
+    /// <summary>
+    /// Викликається MeepleSpawner, коли міпл успішно поставлений.
+    /// </summary>
     public void OnMeeplePlaced()
     {
-        var currentPlayer = playerManager.GetCurrentPlayer();
-        currentPlayer.UseMeeple();
         meeplePlaced = true;
+        endTurnBtn.interactable = true;
 
+        var current = playerManager.GetCurrentPlayer();
+        current.UseMeeple();
+        uiManager.UpdatePlayerMeeples(playerManager.CurrentPlayerIndex, current.MeepleCount);
+
+        // Прибираємо підсвічування та будь-які слоти
         board.ClearAllMeepleSlotsExcept(null);
-        placeMeepleBtn.interactable = false;
-
-        // Оновлюємо UI
-        uiManager.UpdatePlayerMeeples(playerManager.CurrentPlayerIndex, currentPlayer.MeepleCount);
     }
 
+    /// <summary>
+    /// Логіка завершення гри.
+    /// </summary>
+    private void EndGame()
+    {
+        // Рахуємо очки за всі незакриті структури
+        StructureScorer.ScoreEndGameStructures(board, playerManager, uiManager);
+
+        // Блокуємо всі кнопки
+        chooseTileBtn.interactable = false;
+        placeMeepleBtn.interactable = false;
+        endTurnBtn.interactable = false;
+
+        // Показуємо екран «Гра завершена»
+        // uiManager.ShowGameOverUI();
+    }
 }

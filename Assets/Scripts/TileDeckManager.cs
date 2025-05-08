@@ -1,3 +1,4 @@
+// TileDeckManager.cs
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,10 +12,9 @@ public class TileDeckManager : MonoBehaviour
     {
         fullDeck = new List<TileData>();
         for (int i = 0; i < uniqueTiles.Count; i++)
-        {
             for (int j = 0; j < tileCounts[i]; j++)
                 fullDeck.Add(uniqueTiles[i]);
-        }
+
         Shuffle(fullDeck);
     }
 
@@ -27,11 +27,26 @@ public class TileDeckManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Дістане верхню карту й видалить її з колоди.
+    /// </summary>
     public TileData DrawTile()
     {
         if (fullDeck.Count == 0) return null;
-        TileData drawn = fullDeck[0];
+        var res = fullDeck[0];
         fullDeck.RemoveAt(0);
-        return drawn;
+        return res;
     }
+
+    /// <summary>
+    /// Чи порожня зараз колода?
+    /// </summary>
+    public bool IsEmpty()
+        => fullDeck.Count == 0;
+
+    /// <summary>
+    /// Скільки тайлів ще залишилось у колоді?
+    /// </summary>
+    public int TilesRemaining
+        => fullDeck.Count;
 }

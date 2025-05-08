@@ -170,7 +170,7 @@ public class Tile : MonoBehaviour
         Vector3 avg = sum / slotData.CoveredSegmentIds.Count;
         avg.x *= -1;
         return avg;
-    }
+    }   
 
     private Vector3 GetSegmentLocalPosition(int segmentId)
     {

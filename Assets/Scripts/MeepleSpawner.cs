@@ -1,3 +1,4 @@
+// MeepleSpawner.cs
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -36,20 +37,35 @@ public class MeepleSpawner : MonoBehaviour
     {
         if (!isPlacing || currentMeeple == null) return;
 
+        // Відміна розміщення ПКМ
+        if (Mouse.current.rightButton.wasPressedThisFrame)
+        {
+            Destroy(currentMeeple);
+            currentMeeple = null;
+            isPlacing = false;
+            hoveredSlot = null;
+            turnManager.endTurnBtn.interactable = true;
+            turnManager.placeMeepleBtn.interactable = true;
+            return;
+        }
+
         Vector2 mouseScreen = Mouse.current.position.ReadValue();
         Vector3 worldPos = mainCamera.ScreenToWorldPoint(mouseScreen);
         worldPos.z = 0f;
 
+        // Пошук найближчого слоту
         hoveredSlot = Object
             .FindObjectsByType<MeeplePlacementSlot>(FindObjectsSortMode.None)
             .Where(s => !s.IsOccupied)
             .OrderBy(s => Vector3.Distance(s.transform.position, worldPos))
             .FirstOrDefault(s => Vector3.Distance(s.transform.position, worldPos) < snapDistance);
 
+        // Переміщуємо міпла за курсором або на слот
         currentMeeple.transform.position = hoveredSlot != null
             ? hoveredSlot.transform.position
             : worldPos;
 
+        // Підтвердження розміщення ЛКМ
         if (Mouse.current.leftButton.wasPressedThisFrame)
             TryPlaceMeeple();
     }
@@ -96,8 +112,10 @@ public class MeepleSpawner : MonoBehaviour
             hoveredSlot.MeepleOwner = player;
         }
 
+        // Завершуємо фазу розміщення
         currentMeeple = null;
         isPlacing = false;
+        hoveredSlot = null;
         turnManager.OnMeeplePlaced();
     }
 }
