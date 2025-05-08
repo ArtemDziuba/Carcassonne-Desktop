@@ -5,15 +5,22 @@ public class Tile : MonoBehaviour
 {
     public TileData Data { get; private set; }
     public SpriteRenderer SpriteRenderer { get; private set; }
-    public int Rotation { get; private set; } = 0;
+    public int Rotation { get; private set; }
 
+    // Для монастиря
+    private bool hasMonasteryMeeple = false;
+    public bool HasMonasteryMeeple => hasMonasteryMeeple;
+    private Player monasteryMeepleOwner;
+    public Player MonasteryMeepleOwner => monasteryMeepleOwner;
+    private GameObject monasteryMeepleObject;
+
+    // Сегменти для доріг/міст/полів
     private List<Segment> rotatedSegments;
 
     public void Initialize(TileData data)
     {
         Data = data;
         SpriteRenderer = GetComponent<SpriteRenderer>();
-
         if (Data == null || SpriteRenderer == null)
         {
             Debug.LogError("Tile initialization error: Data or SpriteRenderer is missing.");
@@ -32,7 +39,7 @@ public class Tile : MonoBehaviour
         Rotation = (Rotation + 90) % 360;
         RotateSegments(90);
         UpdateRotation();
-        CreateMeepleSlots(); // пересоздаємо слоти після повороту
+        CreateMeepleSlots();
     }
 
     private void UpdateRotation()
@@ -42,9 +49,8 @@ public class Tile : MonoBehaviour
 
     private void RotateSegments(int degrees)
     {
-        int shift = 3 * (degrees / 90);
+        int shift = (degrees / 90) * 3;
         var newSegments = new List<Segment>(new Segment[12]);
-
         for (int i = 0; i < 12; i++)
         {
             int newIndex = (i + shift) % 12;
@@ -58,22 +64,18 @@ public class Tile : MonoBehaviour
                 ConnectedSegmentIds = new List<int>()
             };
         }
-
         for (int i = 0; i < 12; i++)
         {
             int oldIndex = (i - shift + 12) % 12;
-            foreach (int oldConn in rotatedSegments[oldIndex].ConnectedSegmentIds)
-            {
-                newSegments[i].ConnectedSegmentIds.Add((oldConn + shift) % 12);
-            }
+            foreach (int conn in rotatedSegments[oldIndex].ConnectedSegmentIds)
+                newSegments[i].ConnectedSegmentIds.Add((conn + shift) % 12);
         }
-
         rotatedSegments = newSegments;
     }
 
     private List<Segment> CloneSegments(List<Segment> source)
     {
-        var clone = new List<Segment>();
+        var clone = new List<Segment>(source.Count);
         foreach (var seg in source)
         {
             clone.Add(new Segment
@@ -93,89 +95,88 @@ public class Tile : MonoBehaviour
         return rotatedSegments;
     }
 
+    // Розміщення та очищення міпла на монастирі
+    public void PlaceMonasteryMeeple(Player owner, GameObject meepleObj)
+    {
+        if (!Data.HasMonastery) return;
+        hasMonasteryMeeple = true;
+        monasteryMeepleOwner = owner;
+        monasteryMeepleObject = meepleObj;
+    }
+
+    public void ClearMonasteryMeeple()
+    {
+        if (monasteryMeepleObject != null)
+            Destroy(monasteryMeepleObject);
+        hasMonasteryMeeple = false;
+        monasteryMeepleOwner = null;
+        monasteryMeepleObject = null;
+    }
+
+    // Створення слотів для міплів на сегментах
     public void CreateMeepleSlots()
     {
-        // Видаляємо старі слоти (якщо були)
-        foreach (Transform child in transform)
-        {
-            if (child.GetComponent<MeeplePlacementSlot>())
-                Destroy(child.gameObject);
-        }
-
+        ClearMeepleSlots();
+        int shift = (Rotation / 90) * 3;
         foreach (var slotData in Data.MeepleSlots)
         {
             GameObject slotObj = new GameObject("MeepleSlot");
-            slotObj.transform.SetParent(this.transform);
+            slotObj.transform.SetParent(transform);
             slotObj.transform.localPosition = CalculateSlotPosition(slotData);
 
             var slot = slotObj.AddComponent<MeeplePlacementSlot>();
             slot.Type = slotData.Type;
-
-            // Обчислюємо повернуті сегменти
             slot.CoveredSegments = new List<int>();
             foreach (int originalId in slotData.CoveredSegmentIds)
-            {
-                int rotatedId = (originalId + (Rotation / 30)) % 12;
-                slot.CoveredSegments.Add(rotatedId);
-            }
+                slot.CoveredSegments.Add((originalId + shift) % 12);
 
-            // Додаємо BoxCollider2D для взаємодії з мишею
             var collider = slotObj.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
-            collider.size = new Vector2(0.2f, 0.2f); // Адаптуй за потреби
+            collider.size = new Vector2(0.2f, 0.2f);
         }
     }
 
+    public void ClearMeepleSlots()
+    {
+        foreach (Transform child in transform)
+            if (child.GetComponent<MeeplePlacementSlot>())
+                Destroy(child.gameObject);
+    }
 
     private Vector3 CalculateSlotPosition(MeeplePlacementSlotData slotData)
     {
         if (slotData.CoveredSegmentIds == null || slotData.CoveredSegmentIds.Count == 0)
             return Vector3.zero;
 
-        var ids = new List<int>(slotData.CoveredSegmentIds);
-
-        // Впливає на поворот дороги - робить слот на початку дороги
-        if (ids.Count == 2 && Mathf.Abs(ids[0] - ids[1]) == 3)
+        if (slotData.CoveredSegmentIds.Count == 2 &&
+            Mathf.Abs(slotData.CoveredSegmentIds[0] - slotData.CoveredSegmentIds[1]) == 3)
         {
-            var pos2 = GetSegmentLocalPosition(ids[1]);
-
-            return new Vector3(pos2.x, pos2.y + 0.1f, 0);
+            int id = slotData.CoveredSegmentIds[1];
+            Vector3 pos = GetSegmentLocalPosition(id);
+            return new Vector3(pos.x, pos.y + 0.1f, 0f);
         }
 
-        // Впливає на обидва типи монастирів та city_4_sides, 
-        // робить фіксовану точку для поля/міста справа зверху
-        if (ids.Count >= 11)
+        if (slotData.CoveredSegmentIds.Count >= 11)
         {
-            var pos1 = GetSegmentLocalPosition(ids[0]);
-
-            return new Vector3(pos1.x, pos1.y * 0.7f, 0);
+            int id = slotData.CoveredSegmentIds[0];
+            Vector3 pos = GetSegmentLocalPosition(id);
+            return new Vector3(pos.x, pos.y * 0.7f, 0f);
         }
 
-        // Для всіх інших варіантів слотів береться середнє арифметичне покритих вершин (сегменітв)
-        Vector3 avg = Vector3.zero;
-        foreach (int id in ids)
-            avg += GetSegmentLocalPosition(id);
-         
+        Vector3 sum = Vector3.zero;
+        foreach (int id in slotData.CoveredSegmentIds)
+            sum += GetSegmentLocalPosition(id);
+
+        Vector3 avg = sum / slotData.CoveredSegmentIds.Count;
         avg.x *= -1;
-        return avg / ids.Count;
+        return avg;
     }
-
-
 
     private Vector3 GetSegmentLocalPosition(int segmentId)
     {
         float radius = 0.5f;
-        float angle = (segmentId / 12f) * 360f + 60f;
-        float rad = angle * Mathf.Deg2Rad;
-        return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
-    }
-
-    public void ClearMeepleSlots()
-    {
-        foreach (Transform child in transform)
-        {
-            if (child.GetComponent<MeeplePlacementSlot>())
-                Destroy(child.gameObject);
-        }
+        float angleDeg = (segmentId / 12f) * 360f + 60f;
+        float rad = angleDeg * Mathf.Deg2Rad;
+        return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0f) * radius;
     }
 }

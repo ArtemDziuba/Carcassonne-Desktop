@@ -1,24 +1,25 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MeepleSpawner : MonoBehaviour
 {
     public GameObject meeplePrefab;
-    public Sprite[] meepleSprites; // 5 кольорів міплів
-    public int currentPlayerIndex = 0;
-    public float snapDistance = 0.3f; // відстань для "прилипання"
-    public TurnManager turnManager; // перетягнути вручну в інспекторі
+    public Sprite[] meepleSprites;
+    public float snapDistance = 0.3f;
+    public TurnManager turnManager;
     public Board board;
     public PlayerManager playerManager;
 
     private GameObject currentMeeple;
-    private Camera mainCamera;
-    private bool isPlacing = false;
+    private bool isPlacing;
     private MeeplePlacementSlot hoveredSlot;
+    private Camera mainCamera;
 
     private void Start()
     {
         mainCamera = Camera.main;
+        isPlacing = false;
     }
 
     public void StartPlacingMeeple()
@@ -26,110 +27,77 @@ public class MeepleSpawner : MonoBehaviour
         if (isPlacing || meeplePrefab == null) return;
 
         currentMeeple = Instantiate(meeplePrefab);
+        var sr = currentMeeple.GetComponent<SpriteRenderer>();
+        sr.sprite = meepleSprites[playerManager.CurrentPlayerIndex];
         isPlacing = true;
-
-        // Встановити правильний спрайт
-        SpriteRenderer sr = currentMeeple.GetComponent<SpriteRenderer>();
-        if (sr != null && meepleSprites.Length > currentPlayerIndex)
-        {
-            sr.sprite = meepleSprites[currentPlayerIndex];
-        }
     }
 
     private void Update()
     {
         if (!isPlacing || currentMeeple == null) return;
 
-        Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-        Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(mouseScreenPos);
-        mouseWorldPos.z = 0;
+        Vector2 mouseScreen = Mouse.current.position.ReadValue();
+        Vector3 worldPos = mainCamera.ScreenToWorldPoint(mouseScreen);
+        worldPos.z = 0f;
 
-        hoveredSlot = FindClosestSlot(mouseWorldPos);
+        hoveredSlot = Object
+            .FindObjectsByType<MeeplePlacementSlot>(FindObjectsSortMode.None)
+            .Where(s => !s.IsOccupied)
+            .OrderBy(s => Vector3.Distance(s.transform.position, worldPos))
+            .FirstOrDefault(s => Vector3.Distance(s.transform.position, worldPos) < snapDistance);
 
-        if (hoveredSlot != null)
-        {
-            currentMeeple.transform.position = hoveredSlot.transform.position;
-        }
-        else
-        {
-            currentMeeple.transform.position = mouseWorldPos;
-        }
+        currentMeeple.transform.position = hoveredSlot != null
+            ? hoveredSlot.transform.position
+            : worldPos;
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
             TryPlaceMeeple();
-        }
-    }
-
-    private MeeplePlacementSlot FindClosestSlot(Vector3 pos)
-    {
-        MeeplePlacementSlot[] allSlots =
-            Object.FindObjectsByType<MeeplePlacementSlot>(FindObjectsSortMode.None); // без сортування — швидше
-
-        MeeplePlacementSlot closest = null;
-        float minDist = float.MaxValue;
-
-        foreach (var slot in allSlots)
-        {
-            if (slot.IsOccupied) continue;
-            float dist = Vector3.Distance(slot.transform.position, pos);
-            if (dist < snapDistance && dist < minDist)
-            {
-                closest = slot;
-                minDist = dist;
-            }
-        }
-
-        return closest;
     }
 
     private void TryPlaceMeeple()
     {
         if (hoveredSlot == null) return;
 
-        // Отримуємо тайл і його позицію
-        Tile tile = hoveredSlot.transform.parent.GetComponent<Tile>();
-        if (tile == null) return;
-        Vector2Int tilePos = new Vector2Int(
-            Mathf.RoundToInt(tile.transform.position.x),
-            Mathf.RoundToInt(tile.transform.position.y)
-        );
+        var tile = hoveredSlot.GetComponentInParent<Tile>();
+        var player = playerManager.GetCurrentPlayer();
 
-        // Перевірка: чи структура вже зайнята
-        if (StructureAnalyzer.IsStructureOccupied(board, tilePos, hoveredSlot.CoveredSegments))
+        // 1) Монастир
+        if (tile.Data.HasMonastery && hoveredSlot.Type == TerrainType.Monastery)
         {
-            Debug.Log("[MeepleSpawner] Структура вже зайнята, міпл не може бути розміщений.");
-            return;
+            tile.PlaceMonasteryMeeple(player, currentMeeple);
+            hoveredSlot.IsOccupied = true;
+            hoveredSlot.CurrentMeeple = currentMeeple;
+            hoveredSlot.MeepleOwner = player;
+        }
+        else
+        {
+            // 2) Дороги/міста/поля
+            Vector2Int tilePos = new Vector2Int(
+                Mathf.RoundToInt(tile.transform.position.x),
+                Mathf.RoundToInt(tile.transform.position.y)
+            );
+
+            if (StructureAnalyzer.IsStructureOccupied(board, tilePos, hoveredSlot.CoveredSegments))
+            {
+                Debug.Log("[MeepleSpawner] Структура вже зайнята, міпл не може бути розміщений.");
+                return;
+            }
+
+            foreach (int segId in hoveredSlot.CoveredSegments)
+            {
+                var seg = tile.GetSegments()[segId];
+                seg.HasMeeple = true;
+                seg.MeepleOwner = player;
+                seg.MeepleObject = currentMeeple;
+            }
+
+            hoveredSlot.IsOccupied = true;
+            hoveredSlot.CurrentMeeple = currentMeeple;
+            hoveredSlot.MeepleOwner = player;
         }
 
-        // 1) Прив'язуємо міпла до слоту
-        hoveredSlot.IsOccupied = true;
-        hoveredSlot.CurrentMeeple = currentMeeple;
-        hoveredSlot.MeepleOwner = playerManager.GetCurrentPlayer();
-        currentMeeple.transform.position = hoveredSlot.transform.position;
-
-        // 2) Позначаємо сегменти (для доріг/міст)
-        foreach (int segId in hoveredSlot.CoveredSegments)
-        {
-            Segment seg = tile.GetSegments()[segId];
-            seg.HasMeeple = true;
-            seg.MeepleOwner = playerManager.GetCurrentPlayer();
-
-            seg.MeepleObject = hoveredSlot.CurrentMeeple;
-        }
-
-        // Прибираємо підсвічування слоту
-        var sr = hoveredSlot.GetComponent<SpriteRenderer>();
-        if (sr != null) sr.enabled = false;
-
-        // Завершуємо фазу розміщення
-        isPlacing = false;
         currentMeeple = null;
-
+        isPlacing = false;
         turnManager.OnMeeplePlaced();
-        Debug.Log($"[MeepleSpawner] Міпл розміщено на {tilePos} слотом covering {string.Join(",", hoveredSlot.CoveredSegments)}");
     }
-
-
-
 }

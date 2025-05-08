@@ -43,8 +43,6 @@ public class TurnManager : MonoBehaviour
         tilePlaced = false;
         meeplePlaced = false;
 
-        meepleSpawner.currentPlayerIndex = currentPlayer.MeepleSpriteIndex;
-
         chooseTileBtn.interactable = true;
         placeMeepleBtn.interactable = false;
         endTurnBtn.interactable = false;
