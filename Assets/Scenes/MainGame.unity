@@ -408,6 +408,8 @@ MonoBehaviour:
   zoomSpeed: 100
   minSize: 3
   maxSize: 15
+  panSpeed: 10
+  backgroundRenderer: {fileID: 557261050}
 --- !u!1 &533705787
 GameObject:
   m_ObjectHideFlags: 0
@@ -741,7 +743,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: End turn
+  m_text: "\u0417\u0430\u0432\u0435\u0440\u0448\u0438\u0442\u0438 \u0445\u0456\u0434"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -945,13 +947,13 @@ MonoBehaviour:
   playerManager: {fileID: 33227488}
   tileSpawner: {fileID: 727260354}
   meepleSpawner: {fileID: 1093546658}
+  deckManager: {fileID: 1751311650}
   board: {fileID: 400462396}
+  uiManager: {fileID: 1408606616}
   chooseTileBtn: {fileID: 1120680687}
   placeMeepleBtn: {fileID: 1372027337}
   endTurnBtn: {fileID: 1913111933}
   chooseTileBtnText: {fileID: 2086904501}
-  deckManager: {fileID: 1751311650}
-  uiManager: {fileID: 1408606616}
 --- !u!4 &804632155
 Transform:
   m_ObjectHideFlags: 0
@@ -1024,7 +1026,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Place Meeple
+  m_text: "\u0412\u0437\u044F\u0442\u0438 \u043C\u0456\u043F\u043B\u0430"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1139,7 +1141,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 041fa4bddfcfeed4fa2d8e02367edf2b, type: 3}
   - {fileID: 21300000, guid: 614837c5bce40e44eaa6b429a2e3232f, type: 3}
   - {fileID: 21300000, guid: 370e6a8d0e7e53a4bb33b82ce0fcd0fa, type: 3}
-  currentPlayerIndex: 0
   snapDistance: 0.3
   turnManager: {fileID: 804632154}
   board: {fileID: 400462396}

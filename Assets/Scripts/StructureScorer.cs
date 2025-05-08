@@ -147,16 +147,163 @@ public static class StructureScorer
     /// Нараховує очки наприкінці гри за всі незакриті структури.
     /// </summary>
     public static void ScoreEndGameStructures(
-        Board board,
-        PlayerManager pm,
-        PlayerUIManager ui)
+    Board board,
+    PlayerManager pm,
+    PlayerUIManager ui)
     {
         ScoreIncompleteRoads(board, pm, ui);
         ScoreIncompleteCities(board, pm, ui);
         ScoreIncompleteMonasteries(board, pm, ui);
+        ScoreFields(board, pm, ui);
     }
 
     // ---- Helpers for End Game ----
+
+    /// <summary>
+    /// В кінці гри: оцінює поля (TerrainType.Field):
+    /// дає по 3 очки за кожне завершене місто, яке торкається цього поля.
+    /// Використовує majority-систему та повертає міплів.
+    /// </summary>
+    private static void ScoreFields(
+        Board board,
+        PlayerManager pm,
+        PlayerUIManager ui)
+    {
+        // 1) Збираємо всі завершені міста як множини позицій тайлів
+        var completedCities = new List<HashSet<Vector2Int>>();
+        var visitedCitySegs = new HashSet<(Vector2Int, int)>();
+
+        foreach (var kv in board.placedTiles)
+        {
+            var pos = kv.Key;
+            var segs = kv.Value.GetSegments();
+
+            for (int id = 0; id < segs.Count; id++)
+            {
+                if (segs[id].Type != TerrainType.City ||
+                    visitedCitySegs.Contains((pos, id)))
+                    continue;
+
+                var cityRegion = CollectStructure(board, pos, id, TerrainType.City);
+                foreach (var seg in cityRegion)
+                    visitedCitySegs.Add(seg);
+
+                if (!IsStructureComplete(board, cityRegion, TerrainType.City))
+                    continue;
+
+                // Унікальні тайли міста
+                var cityTiles = new HashSet<Vector2Int>(
+                    cityRegion.Select(x => x.Item1)
+                );
+                completedCities.Add(cityTiles);
+            }
+        }
+
+        if (completedCities.Count == 0)
+            return;
+
+        // 2) Для кожного регіону поля
+        var visitedFieldSegs = new HashSet<(Vector2Int, int)>();
+
+        foreach (var kv in board.placedTiles)
+        {
+            var pos = kv.Key;
+            var segs = kv.Value.GetSegments();
+
+            for (int id = 0; id < segs.Count; id++)
+            {
+                if (segs[id].Type != TerrainType.Field ||
+                    visitedFieldSegs.Contains((pos, id)))
+                    continue;
+
+                var fieldRegion = CollectStructure(board, pos, id, TerrainType.Field);
+                foreach (var seg in fieldRegion)
+                    visitedFieldSegs.Add(seg);
+
+                // Унікальні тайли поля
+                var fieldTiles = new HashSet<Vector2Int>(
+                    fieldRegion.Select(x => x.Item1)
+                );
+
+                // 3) Рахуємо, скільки завершених міст торкаються поля
+                int touchCount = completedCities.Count(cityTiles =>
+                {
+                    // а) місто й поле на одному тайлі
+                    if (cityTiles.Overlaps(fieldTiles))
+                        return true;
+
+                    // б) місто в сусідньому тайлі через будь-який сегмент поля
+                    return fieldRegion.Any(f =>
+                    {
+                        int side = GetSideFromSegmentId(f.Item2);
+                        if (side < 0) return false;
+                        var neighborPos = f.Item1 + directions[side];
+                        return cityTiles.Contains(neighborPos);
+                    });
+                });
+
+                if (touchCount == 0)
+                    continue;
+
+                int points = touchCount * 3;
+
+                // 4) Majority-система для міплів на цьому полі
+                var meepleMap = new Dictionary<Player, HashSet<GameObject>>();
+                foreach (var (fpos, fid) in fieldRegion)
+                {
+                    var s2 = board.GetTileAt(fpos).GetSegments()[fid];
+                    if (s2.MeepleObject != null && s2.MeepleOwner != null)
+                    {
+                        if (!meepleMap.TryGetValue(s2.MeepleOwner, out var set))
+                        {
+                            set = new HashSet<GameObject>();
+                            meepleMap[s2.MeepleOwner] = set;
+                        }
+                        set.Add(s2.MeepleObject);
+                    }
+                }
+                if (meepleMap.Count == 0)
+                    continue;
+
+                int maxCount = meepleMap.Values.Max(set => set.Count);
+                var winners = meepleMap
+                    .Where(kv2 => kv2.Value.Count == maxCount)
+                    .Select(kv2 => kv2.Key);
+
+                // 5) Нарахувати очки переможцям
+                foreach (var p in winners)
+                {
+                    p.Score += points;
+                    ui.UpdatePlayerScore(p.PlayerId, p.Score);
+                }
+
+                // 6) Повернути міплів всім учасникам регіону
+                var destroyed = new HashSet<GameObject>();
+                foreach (var kv2 in meepleMap)
+                {
+                    int toReturn = kv2.Value.Count;
+                    for (int i = 0; i < toReturn; i++)
+                        kv2.Key.ReturnMeeple();
+                    ui.UpdatePlayerMeeples(kv2.Key.PlayerId, kv2.Key.MeepleCount);
+
+                    // 7) Знищити об’єкти
+                    foreach (var go in kv2.Value)
+                        if (destroyed.Add(go))
+                            Object.Destroy(go);
+                }
+
+                // 8) Очищення сегментів
+                foreach (var (fpos, fid2) in fieldRegion)
+                {
+                    var s2 = board.GetTileAt(fpos).GetSegments()[fid2];
+                    s2.HasMeeple = false;
+                    s2.MeepleOwner = null;
+                    s2.MeepleObject = null;
+                }
+            }
+        }
+    }
+
 
     private static void ScoreIncompleteRoads(
         Board board,
