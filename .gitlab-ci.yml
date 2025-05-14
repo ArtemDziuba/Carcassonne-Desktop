@@ -14,8 +14,6 @@ variables:
   VERSION_NUMBER_VAR: $CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID-$CI_JOB_ID
   VERSION_BUILD_VAR: $CI_PIPELINE_IID
 
-image: $IMAGE:$UNITY_VERSION-base-$IMAGE_VERSION
-
 get-unity-version:
   image: alpine
   stage: prepare
@@ -74,6 +72,7 @@ get-unity-version:
 # Tests without junit reporting results in GitLab
 test-playmode:
   <<: *test
+  image: $IMAGE:$UNITY_VERSION-base-$IMAGE_VERSION
   variables:
     TEST_PLATFORM: playmode
     TESTING_TYPE: NUNIT
