@@ -42,68 +42,93 @@ if [ ! -d "$UNITY_BUILDER" ]; then
     cd -
 fi
 
-if [[ -n "$UNITY_SERIAL" && -n "$UNITY_EMAIL" && -n "$UNITY_PASSWORD" ]]; then
+if [[ -n "${UNITY_LICENSE:-}" ]]; then
   #
-  # SERIAL LICENSE MODE
+  # UNITY_LICENSE (base64-encoded .ulf license file)
   #
-  # This will activate unity, using the serial activation process.
-  #
-  echo "Requesting activation by Serial Number"
+  echo "Using base64-encoded UNITY_LICENSE"
 
-  retry_with_backoff "unity-editor \
-   -logFile /dev/stdout \
-   -quit \
-   -serial \"$UNITY_SERIAL\" \
-   -username \"$UNITY_EMAIL\" \
-   -password \"$UNITY_PASSWORD\" \
-   -projectPath \"$UNITY_BUILDER/dist/BlankProject\""
+  mkdir -p ~/.local/share/unity3d/Unity
+  echo "$UNITY_LICENSE" | base64 -d > ~/.local/share/unity3d/Unity/Unity_lic.ulf
 
-  UNITY_EXIT_CODE=$? 
+  echo "License file written to ~/.local/share/unity3d/Unity/Unity_lic.ulf"
+  UNITY_EXIT_CODE=0
 
-elif [[ -n "$UNITY_LICENSING_SERVER" ]]; then
-  #
-  # Custom Unity License Server
-  #
-  echo "Adding licensing server config"
-
-  # Create temporary file with cleanup trap
-  license_file=$(mktemp)
-  trap 'rm -f "$license_file"' EXIT
-
-  /opt/unity/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client --acquire-floating > "$license_file"
-  UNITY_EXIT_CODE=$?
-
-  # More robust parsing with validation
-  PARSED_FILE=$(grep -oP '\".*?\"' < "$license_file" | tr -d '"')
-  FLOATING_LICENSE=$(sed -n 2p <<< "$PARSED_FILE")
-  FLOATING_LICENSE_TIMEOUT=$(sed -n 4p <<< "$PARSED_FILE")
-
-  # Validate parsed values
-  if [[ -z "$FLOATING_LICENSE" || -z "$FLOATING_LICENSE_TIMEOUT" ]]; then
-    echo "::error ::Failed to parse license information"
-    exit 1
-  fi
-  export FLOATING_LICENSE
-  export FLOATING_LICENSE_TIMEOUT
-
-  echo "Acquired floating license: \"$FLOATING_LICENSE\" with timeout $FLOATING_LICENSE_TIMEOUT"
 else
   #
   # NO LICENSE ACTIVATION STRATEGY MATCHED
-  #
-  # This will exit since no activation strategies could be matched.
   #
   echo "License activation strategy could not be determined."
   echo ""
   echo "Visit https://game.ci/docs/github/activation for more"
   echo "details on how to set up one of the possible activation strategies."
 
-  echo "::error ::No valid license activation strategy could be determined. Make sure to provide UNITY_EMAIL, UNITY_PASSWORD, and either a UNITY_SERIAL \
-or UNITY_LICENSE. Otherwise please use UNITY_LICENSING_SERVER. See more info at https://game.ci/docs/github/activation"
-
-  # Immediately exit as no UNITY_EXIT_CODE can be derived.
+  echo "::error ::No valid license activation strategy could be determined. Make sure to provide UNITY_LICENSE (base64-encoded)."
   exit 1;
 fi
+
+#if [[ -n "$UNITY_SERIAL" && -n "$UNITY_EMAIL" && -n "$UNITY_PASSWORD" ]]; then
+  #
+  # SERIAL LICENSE MODE
+  #
+  # This will activate unity, using the serial activation process.
+  #
+#  echo "Requesting activation by Serial Number"
+#
+#  retry_with_backoff "unity-editor \
+#   -logFile /dev/stdout \
+#   -quit \
+#   -serial \"$UNITY_SERIAL\" \
+#   -username \"$UNITY_EMAIL\" \
+#   -password \"$UNITY_PASSWORD\" \
+#   -projectPath \"$UNITY_BUILDER/dist/BlankProject\""
+#
+#  UNITY_EXIT_CODE=$? 
+#
+#elif [[ -n "$UNITY_LICENSING_SERVER" ]]; then
+  #
+  # Custom Unity License Server
+  #
+#  echo "Adding licensing server config"
+#
+  # Create temporary file with cleanup trap
+#  license_file=$(mktemp)
+#  trap 'rm -f "$license_file"' EXIT
+#
+#  /opt/unity/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client --acquire-floating > "$license_file"
+#  UNITY_EXIT_CODE=$?
+#
+  # More robust parsing with validation
+#  PARSED_FILE=$(grep -oP '\".*?\"' < "$license_file" | tr -d '"')
+#  FLOATING_LICENSE=$(sed -n 2p <<< "$PARSED_FILE")
+#  FLOATING_LICENSE_TIMEOUT=$(sed -n 4p <<< "$PARSED_FILE")
+#
+  # Validate parsed values
+#  if [[ -z "$FLOATING_LICENSE" || -z "$FLOATING_LICENSE_TIMEOUT" ]]; then
+#    echo "::error ::Failed to parse license information"
+#    exit 1
+#  fi
+#  export FLOATING_LICENSE
+#  export FLOATING_LICENSE_TIMEOUT
+#
+#  echo "Acquired floating license: \"$FLOATING_LICENSE\" with timeout $FLOATING_LICENSE_TIMEOUT"
+#else
+  #
+  # NO LICENSE ACTIVATION STRATEGY MATCHED
+  #
+  # This will exit since no activation strategies could be matched.
+  #
+#  echo "License activation strategy could not be determined."
+#  echo ""
+#  echo "Visit https://game.ci/docs/github/activation for more"
+#  echo "details on how to set up one of the possible activation strategies."
+#
+#  echo "::error ::No valid license activation strategy could be determined. Make sure to provide UNITY_EMAIL, UNITY_PASSWORD, and either a UNITY_SERIAL \
+#or UNITY_LICENSE. Otherwise please use UNITY_LICENSING_SERVER. See more info at https://game.ci/docs/github/activation"
+#
+  # Immediately exit as no UNITY_EXIT_CODE can be derived.
+#  exit 1;
+#fi
 
 #
 # Display information about the result
