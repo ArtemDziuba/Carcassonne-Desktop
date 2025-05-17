@@ -5,12 +5,11 @@ public class MenuController : MonoBehaviour
 {
     public void OnNewGameClicked()
     {
-        SceneManager.LoadScene("PlayerSetupScene"); // назва сцени має збігатись
+        SceneManager.LoadScene("PlayerSetupScene");
     }
 
     public void OnReturnToMenuClicked()
     {
-        Debug.Log("Кнопка натиснута.");
-        SceneManager.LoadScene("MainMenu"); // Назва твоєї головної сцени
+        SceneManager.LoadScene("MainMenu");
     }
 }
