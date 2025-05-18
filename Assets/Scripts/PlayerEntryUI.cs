@@ -16,30 +16,24 @@ public class PlayerEntryUI : MonoBehaviour
     private List<Sprite> meepleSprites;
     private int selectedSpriteIndex = 0;
 
-    public void Initialize(int id, List<Sprite> sprites)
+    public void Initialize(int id, List<Sprite> sprites, int defaultMeepleIndex)
     {
         playerId = id;
         meepleSprites = sprites;
         MeepleDropdownPanel.SetActive(false);
+        selectedSpriteIndex = defaultMeepleIndex;
 
-        // Встановлюємо ім'я за замовчуванням
+        if (selectedSpriteIndex >= 0 && selectedSpriteIndex < meepleSprites.Count)
+            MeepleImage.sprite = meepleSprites[selectedSpriteIndex];
+
+        // Встановлюємо ім'я за замовчуванням 
         if (NameInputField.placeholder != null)
         {
-            var placeholder = NameInputField.placeholder?.GetComponent<TextMeshProUGUI>();
+            var placeholder = NameInputField.placeholder.GetComponent<TextMeshProUGUI>();
             if (placeholder != null)
-            {
                 placeholder.text = $"Гравець {playerId + 1}";
-                Debug.Log($"Placeholder оновлено: {placeholder.text}");
-            }
         }
 
-        // Встановлюємо міпл за замовчуванням
-        if (meepleSprites.Count > 0)
-        {
-            MeepleImage.sprite = meepleSprites[0];
-            selectedSpriteIndex = 0;
-        }
-        
         MeepleSelectBtn.onClick.AddListener(ToggleMeepleDropdown);
     }
 
@@ -48,30 +42,56 @@ public class PlayerEntryUI : MonoBehaviour
         bool isActive = MeepleDropdownPanel.activeSelf;
         MeepleDropdownPanel.SetActive(!isActive);
 
-        if (!isActive && MeepleDropdownPanel.transform.childCount == 0)
+        if (!isActive)
         {
-            // Створення кнопок
+            // Очищаємо попередні кнопки
+            foreach (Transform child in MeepleDropdownPanel.transform)
+                Destroy(child.gameObject);
+
+            // Створення кнопок для всіх, крім обраного міпла
             for (int i = 0; i < meepleSprites.Count; i++)
             {
+                if (i == selectedSpriteIndex)
+                    continue; // Пропускаємо вже вибраний міпл
+
                 Sprite sprite = meepleSprites[i];
-                int index = i; // локальна копія
+                int index = i; // копія для лямбди
 
                 GameObject btnObj = Instantiate(MeepleOptionButtonPrefab, MeepleDropdownPanel.transform);
                 var img = btnObj.GetComponentInChildren<Image>();
-                if (img != null) img.sprite = sprite;
+                if (img != null)
+                    img.sprite = sprite;
 
                 var btn = btnObj.GetComponent<Button>();
                 if (btn != null)
                 {
                     btn.onClick.AddListener(() =>
                     {
-                        MeepleImage.sprite = sprite;
-                        selectedSpriteIndex = index;
+                        // Запит на зміну міпла з унікальністю
+                        PlayerSetupMenu.Instance.RequestMeepleChange(index, this);
+
+                        // Закриваємо меню та очищуємо кнопки
+                        foreach (Transform child in MeepleDropdownPanel.transform)
+                            Destroy(child.gameObject);
                         MeepleDropdownPanel.SetActive(false);
                     });
                 }
             }
         }
+    }
+
+    public void SetMeeple(int index)
+    {
+        if (index >= 0 && index < meepleSprites.Count)
+        {
+            selectedSpriteIndex = index;
+            MeepleImage.sprite = meepleSprites[index];
+        }
+    }
+
+    public int GetMeepleId()
+    {
+        return selectedSpriteIndex;
     }
 
     public Player ToPlayer()

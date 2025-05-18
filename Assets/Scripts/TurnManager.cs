@@ -23,9 +23,16 @@ public class TurnManager : MonoBehaviour
 
     void Start()
     {
-        // Створюємо гравців та ініціалізуємо UI
-        playerManager.CreatePlayers(playerManager.playerCount);
-        uiManager.InitializeUI(playerManager.Players);
+        if (GameConfig.Instance != null && GameConfig.Instance.Players.Count >= 2)
+        {
+            playerManager.SetPlayers(GameConfig.Instance.Players);
+            uiManager.InitializeUI(playerManager.Players);
+        }
+        else
+        {
+            Debug.LogError("GameConfig.Instance не ініціалізовано або недостатньо гравців.");
+            return;
+        }
 
         chooseTileBtn.onClick.AddListener(OnChooseTile);
         placeMeepleBtn.onClick.AddListener(OnPlaceMeeple);

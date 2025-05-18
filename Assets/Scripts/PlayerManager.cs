@@ -23,6 +23,13 @@ public class PlayerManager : MonoBehaviour
         CurrentPlayerIndex = 0;
     }
 
+    public void SetPlayers(List<Player> players)
+    {
+        Players = new List<Player>(players);
+        playerCount = Players.Count;
+        CurrentPlayerIndex = 0;
+    }
+
     /// <summary>
     /// Отримати поточного гравця.
     /// </summary>
