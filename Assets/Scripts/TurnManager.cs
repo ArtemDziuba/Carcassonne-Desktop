@@ -30,8 +30,11 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
+            playerManager.CreatePlayers(3);
+            uiManager.InitializeUI(playerManager.Players);
+
             Debug.LogError("GameConfig.Instance не ініціалізовано або недостатньо гравців.");
-            return;
+            //return;
         }
 
         chooseTileBtn.onClick.AddListener(OnChooseTile);

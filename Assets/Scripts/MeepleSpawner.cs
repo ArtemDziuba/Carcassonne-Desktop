@@ -29,7 +29,10 @@ public class MeepleSpawner : MonoBehaviour
 
         currentMeeple = Instantiate(meeplePrefab);
         var sr = currentMeeple.GetComponent<SpriteRenderer>();
-        sr.sprite = meepleSprites[playerManager.CurrentPlayerIndex];
+
+        var currentPlayer = playerManager.GetCurrentPlayer();
+        sr.sprite = meepleSprites[currentPlayer.MeepleSpriteIndex];
+
         isPlacing = true;
     }
 

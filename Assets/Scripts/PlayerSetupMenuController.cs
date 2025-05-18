@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerSetupMenu : MonoBehaviour
@@ -8,6 +9,7 @@ public class PlayerSetupMenu : MonoBehaviour
 
     public Button AddPlayerBtn;
     public Button RemovePlayerBtn;
+    public Button StartGameBtn;
     public Transform PlayerContainer;
     public GameObject PlayerEntryPrefab;
     public List<Sprite> MeepleSprites;
@@ -16,6 +18,7 @@ public class PlayerSetupMenu : MonoBehaviour
     private const int MaxPlayers = 5;
     private const int MinPlayers = 2;
     private int nextPlayerId = 0;
+    private Stack<int> availableIds = new(); // звільнені ID
 
     private void Awake()
     {
@@ -27,6 +30,7 @@ public class PlayerSetupMenu : MonoBehaviour
     {
         AddPlayerBtn.onClick.AddListener(CreateNewPlayerEntry);
         RemovePlayerBtn.onClick.AddListener(RemoveLastPlayerEntry);
+        StartGameBtn.onClick.AddListener(OnStartGameClicked);
 
         // Створюємо 2 стартових гравця
         for (int i = 0; i < MinPlayers; i++)
@@ -45,10 +49,10 @@ public class PlayerSetupMenu : MonoBehaviour
         PlayerEntryUI entryUI = entryGO.GetComponent<PlayerEntryUI>();
 
         int freeMeepleIndex = FindFirstAvailableMeepleIndex();
-        entryUI.Initialize(nextPlayerId, MeepleSprites, freeMeepleIndex);
+        int playerId = availableIds.Count > 0 ? availableIds.Pop() : nextPlayerId++;
+        entryUI.Initialize(playerId, MeepleSprites, freeMeepleIndex);
 
         playerEntries.Add(entryUI);
-        nextPlayerId++;
     }
 
     private void RemoveLastPlayerEntry()
@@ -60,6 +64,7 @@ public class PlayerSetupMenu : MonoBehaviour
         }
 
         PlayerEntryUI lastEntry = playerEntries[playerEntries.Count - 1];
+        availableIds.Push(lastEntry.playerId);
         playerEntries.RemoveAt(playerEntries.Count - 1);
         Destroy(lastEntry.gameObject);
     }
@@ -116,5 +121,14 @@ public class PlayerSetupMenu : MonoBehaviour
         }
 
         return 0; // fallback, якщо всі зайняті (не має статись при 5 гравцях і 5 міплах)
+    }
+
+    private void OnStartGameClicked()
+    {
+        List<Player> players = Instance.GetPlayers();
+        GameConfig.Instance.Players = players;
+
+        // Завантажити основну ігрову сцену
+        SceneManager.LoadScene("MainGame");
     }
 }

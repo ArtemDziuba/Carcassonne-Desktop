@@ -343,28 +343,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 242933622}
-  - component: {fileID: 242933621}
   - component: {fileID: 242933623}
   m_Layer: 0
-  m_Name: MenuController
+  m_Name: PlayerSetupMenuController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &242933621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 242933620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6440647cc55b82645bb480fd019aecb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StartGameBtn: {fileID: 600554973}
 --- !u!4 &242933622
 Transform:
   m_ObjectHideFlags: 0
@@ -394,6 +380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AddPlayerBtn: {fileID: 1600563534}
   RemovePlayerBtn: {fileID: 871347088}
+  StartGameBtn: {fileID: 600554973}
   PlayerContainer: {fileID: 1587088599}
   PlayerEntryPrefab: {fileID: 600324831910111556, guid: fc52d5ed34c562e4989ab14e56885c49, type: 3}
   MeepleSprites:
@@ -1889,7 +1876,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 242933621}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuController, Assembly-CSharp
         m_MethodName: OnReturnToMenuClicked
         m_Mode: 1
