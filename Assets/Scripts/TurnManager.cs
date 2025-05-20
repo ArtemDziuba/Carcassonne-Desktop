@@ -73,6 +73,11 @@ public class TurnManager : MonoBehaviour
 
         // Прибираємо слоти підстав mіплів
         board.ClearAllMeepleSlotsExcept(null);
+
+        ToastManager.Instance.ShowToast(ToastType.Info,
+                "Затиснути ПКМ - для пересування по полю.", 5f);
+        ToastManager.Instance.ShowToast(ToastType.Info,
+                "Колесико мишки - для зміни масштабу", 5f);
     }
 
     /// <summary>
@@ -82,6 +87,9 @@ public class TurnManager : MonoBehaviour
     {
         // Витягаємо та спавнимо тайл
         tileSpawner.SpawnNextTile();
+
+        ToastManager.Instance.ShowToast(ToastType.Info,
+                "ПКМ - для обертання тайлу.", 5f);
 
         tilePlaced = true;
         chooseTileBtn.interactable = false;
@@ -104,6 +112,9 @@ public class TurnManager : MonoBehaviour
             Debug.LogWarning($"[TurnManager] Player {current.PlayerId} has no meeples left.");
             return;
         }
+
+        ToastManager.Instance.ShowToast(ToastType.Info,
+                "ПКМ - для скасування.", 5f);
 
         placeMeepleBtn.interactable = false;
         endTurnBtn.interactable = false;

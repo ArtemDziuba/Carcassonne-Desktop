@@ -12,6 +12,7 @@ public class PlayerSetupMenu : MonoBehaviour
     public Button StartGameBtn;
     public Transform PlayerContainer;
     public GameObject PlayerEntryPrefab;
+    public Toggle fieldSetupToggle;
     public List<Sprite> MeepleSprites;
 
     private List<PlayerEntryUI> playerEntries = new(); // Список UI гравців
@@ -129,6 +130,7 @@ public class PlayerSetupMenu : MonoBehaviour
     {
         List<Player> players = Instance.GetPlayers();
         GameConfig.Instance.Players = players;
+        GameConfig.Instance.IsFieldEnabled = fieldSetupToggle.isOn;
 
         // Завантажити основну ігрову сцену
         SceneManager.LoadScene("MainGame");
