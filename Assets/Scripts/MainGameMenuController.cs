@@ -9,6 +9,7 @@ public class MainGameMenuController : MonoBehaviour
     public Button pauseBtn;
     public Button resumeGameBtn;
     public Button exitToMenuBtn;
+    public Button helpBtn;
 
     private bool isPaused = false;
 
@@ -27,6 +28,10 @@ public class MainGameMenuController : MonoBehaviour
 
         if (exitToMenuBtn != null)
             exitToMenuBtn.onClick.AddListener(OnExitToMenuPressed);
+
+
+        if (helpBtn != null)
+            helpBtn.onClick.AddListener(OnHelpPressed);
     }
 
     private void OnPausePressed()
@@ -48,5 +53,11 @@ public class MainGameMenuController : MonoBehaviour
     {
         Time.timeScale = 1f; // Відновлюємо гру перед переходом
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private void OnHelpPressed()
+    {
+        Time.timeScale = 1f; // Відновлюємо гру перед переходом
+        HelpSceneManager.OpenHelpScene();
     }
 }

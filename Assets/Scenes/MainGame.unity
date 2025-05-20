@@ -227,6 +227,7 @@ MonoBehaviour:
   pauseBtn: {fileID: 2061833095}
   resumeGameBtn: {fileID: 1730972738}
   exitToMenuBtn: {fileID: 703831248}
+  helpBtn: {fileID: 1835557487}
 --- !u!4 &8607375
 Transform:
   m_ObjectHideFlags: 0
