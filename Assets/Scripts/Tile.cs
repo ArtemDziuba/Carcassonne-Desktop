@@ -23,6 +23,8 @@ public class Tile : MonoBehaviour
         SpriteRenderer = GetComponent<SpriteRenderer>();
         if (Data == null || SpriteRenderer == null)
         {
+            ToastManager.Instance.ShowToast(ToastType.Error, 
+                "Tile initialization error: Data or SpriteRenderer is missing.");
             Debug.LogError("Tile initialization error: Data or SpriteRenderer is missing.");
             return;
         }

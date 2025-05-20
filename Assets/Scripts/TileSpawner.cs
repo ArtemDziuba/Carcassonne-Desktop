@@ -67,6 +67,8 @@ public class TileSpawner : MonoBehaviour
             }
             else
             {
+                ToastManager.Instance.ShowToast(ToastType.Warning,
+                "Неможливо поставити тайл: невірна позиція.");
                 Debug.Log("Неможливо поставити тайл: невірна позиція.");
             }
         }

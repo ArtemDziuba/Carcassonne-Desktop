@@ -41,6 +41,7 @@ public class PlayerSetupMenu : MonoBehaviour
     {
         if (playerEntries.Count >= MaxPlayers)
         {
+            ToastManager.Instance.ShowToast(ToastType.Warning, "Максимальна кількість гравців досягнута.");
             Debug.LogWarning("Максимальна кількість гравців досягнута.");
             return;
         }
@@ -59,6 +60,7 @@ public class PlayerSetupMenu : MonoBehaviour
     {
         if (playerEntries.Count <= MinPlayers)
         {
+            ToastManager.Instance.ShowToast(ToastType.Warning, "Мінімальна кількість гравців — 2.");
             Debug.LogWarning("Мінімальна кількість гравців — 2. Видалення заборонене.");
             return;
         }

@@ -2802,6 +2802,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372027335}
   m_CullTransparentMesh: 1
+--- !u!1 &1401608194
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1401608196}
+  - component: {fileID: 1401608195}
+  m_Layer: 0
+  m_Name: ToastManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1401608195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1401608194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca53a52a090abf240af0088d0bf4f52e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toastPanel: {fileID: 1734732100}
+  toastInfoPrefab: {fileID: 6539849993919860810, guid: e0681df15de75254f9f13a437c7e37c5, type: 3}
+  toastSuccessPrefab: {fileID: 695319689814940403, guid: dabf33438c9a3404b9c345adfc78d43a, type: 3}
+  toastWarningPrefab: {fileID: 3233699773969977046, guid: 543fc600dff393547ae3077e52c899e5, type: 3}
+  toastErrorPrefab: {fileID: 6725720236020974360, guid: b4a7c4a8e03f46841a019f9acceab08f, type: 3}
+  duration: 3
+--- !u!4 &1401608196
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1401608194}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 490.91608, y: 258.0987, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1408606614
 GameObject:
   m_ObjectHideFlags: 0
@@ -4369,3 +4419,4 @@ SceneRoots:
   - {fileID: 804632155}
   - {fileID: 33227489}
   - {fileID: 8607375}
+  - {fileID: 1401608196}

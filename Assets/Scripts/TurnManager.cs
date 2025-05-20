@@ -33,6 +33,8 @@ public class TurnManager : MonoBehaviour
             playerManager.CreatePlayers(3);
             uiManager.InitializeUI(playerManager.Players);
 
+            ToastManager.Instance.ShowToast(ToastType.Error,
+                "GameConfig.Instance не ініціалізовано або недостатньо гравців.");
             Debug.LogError("GameConfig.Instance не ініціалізовано або недостатньо гравців.");
             //return;
         }
