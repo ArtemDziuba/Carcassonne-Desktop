@@ -18,8 +18,8 @@ public class TurnManager : MonoBehaviour
     public Button endTurnBtn;
     public TextMeshProUGUI chooseTileBtnText;
 
-    private bool tilePlaced = false;
-    private bool meeplePlaced = false;
+    public bool tilePlaced = false;
+    public bool meeplePlaced = false;
 
     void Start()
     {
@@ -174,5 +174,20 @@ public class TurnManager : MonoBehaviour
 
         // Показуємо екран «Гра завершена»
         uiManager.ShowGameOverUI();
+    }
+
+    public void RestorePhase(bool tilePlaced, bool meeplePlaced)
+    {
+        this.tilePlaced = tilePlaced;
+        this.meeplePlaced = meeplePlaced;
+
+        chooseTileBtn.interactable = !tilePlaced;
+        placeMeepleBtn.interactable = tilePlaced && !meeplePlaced;
+        endTurnBtn.interactable = tilePlaced;
+    }
+
+    public void UpdateDeckCountUI()
+    {
+        chooseTileBtnText.text = deckManager.TilesRemaining.ToString();
     }
 }

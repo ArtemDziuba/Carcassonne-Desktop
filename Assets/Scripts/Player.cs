@@ -2,7 +2,7 @@ public class Player
 {
     public int PlayerId { get; private set; }
     public int MeepleSpriteIndex { get; private set; }
-    public int MeepleCount { get; private set; } = 7;
+    public int MeepleCount { get; set; } = 7;
     public int Score { get; set; } = 0;
 
     public string Name { get; private set; }

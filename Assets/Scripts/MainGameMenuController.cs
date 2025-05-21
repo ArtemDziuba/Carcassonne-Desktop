@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class MainGameMenuController : MonoBehaviour
 {
@@ -11,7 +12,12 @@ public class MainGameMenuController : MonoBehaviour
     public Button exitToMenuBtn;
     public Button helpBtn;
     public GameObject helpScreen;
-
+    public GameLoader gameLoader; 
+    public Board board;
+    public TileDeckManager deck;
+    public PlayerManager playerManager;
+    public TurnManager turnManager;
+        
     private bool isPaused = false;
 
     void Start()
@@ -62,5 +68,12 @@ public class MainGameMenuController : MonoBehaviour
             helpScreen.SetActive(true);
             helpScreen.transform.SetAsLastSibling(); // перемістити на верхній шар
         }
+    }
+
+    public void OnSaveGamePressed()
+    {
+        string saveId = $"Save_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+        SaveSystem.SaveGame(saveId, board, playerManager, deck, turnManager);
+        ToastManager.Instance.ShowToast(ToastType.Success, "Гру збережено.");
     }
 }

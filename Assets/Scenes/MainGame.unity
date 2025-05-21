@@ -229,6 +229,11 @@ MonoBehaviour:
   exitToMenuBtn: {fileID: 703831248}
   helpBtn: {fileID: 1835557487}
   helpScreen: {fileID: 892488340}
+  gameLoader: {fileID: 1108212227}
+  board: {fileID: 400462396}
+  deck: {fileID: 1751311650}
+  playerManager: {fileID: 33227488}
+  turnManager: {fileID: 804632154}
 --- !u!4 &8607375
 Transform:
   m_ObjectHideFlags: 0
@@ -3069,6 +3074,8 @@ MonoBehaviour:
   placeMeepleBtn: {fileID: 1372027337}
   endTurnBtn: {fileID: 1913111933}
   chooseTileBtnText: {fileID: 2086904501}
+  tilePlaced: 0
+  meeplePlaced: 0
 --- !u!4 &804632155
 Transform:
   m_ObjectHideFlags: 0
@@ -4325,6 +4332,82 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: 0
   m_LayoutPriority: 1
+--- !u!1 &1108212226
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1108212228}
+  - component: {fileID: 1108212227}
+  m_Layer: 0
+  m_Name: GameLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1108212227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108212226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6172b26b8b04de541952e97267bfb27d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  board: {fileID: 400462396}
+  tilePrefab: {fileID: 1458480041608854308, guid: 53d9b719cd47ddc4f88fbf460afb5af4, type: 3}
+  playerManager: {fileID: 33227488}
+  deckManager: {fileID: 1751311650}
+  uiManager: {fileID: 1408606616}
+  turnManager: {fileID: 804632154}
+  meepleSpawner: {fileID: 1093546658}
+  allTileData:
+  - {fileID: 11400000, guid: 7928808b9fe6c38438f41ddc124266df, type: 2}
+  - {fileID: 11400000, guid: 39e10d757b90d7c4881a81e7052984cc, type: 2}
+  - {fileID: 11400000, guid: 4a9c32817c2ebfe488cec9778c944422, type: 2}
+  - {fileID: 11400000, guid: aa183546e3b44f041b9d3478bdf60bd1, type: 2}
+  - {fileID: 11400000, guid: cb8188668542a864799b10d7783a7f87, type: 2}
+  - {fileID: 11400000, guid: 4a75cc6bf0edd25418f6835105b7934c, type: 2}
+  - {fileID: 11400000, guid: 3e799c8e38b256b41b99e9936965c509, type: 2}
+  - {fileID: 11400000, guid: 9deaae7e882bb1240b4f9d71f6b79775, type: 2}
+  - {fileID: 11400000, guid: 485506e6d6dcbaf418d8368cc473f25f, type: 2}
+  - {fileID: 11400000, guid: 0b473e16bc780374395bc5f33c5aafca, type: 2}
+  - {fileID: 11400000, guid: eb54efb4294ebd049952b2d694da021e, type: 2}
+  - {fileID: 11400000, guid: aced0f4442f3e684d92dc1cc38f193f4, type: 2}
+  - {fileID: 11400000, guid: bd5a5adc0a3efba43b5c7e2611a57d07, type: 2}
+  - {fileID: 11400000, guid: 713f314dd8ebafe44b828ca8773dfb46, type: 2}
+  - {fileID: 11400000, guid: 6c6f9d653d990b64a9967fbfbc837595, type: 2}
+  - {fileID: 11400000, guid: c3e525c679141bf458b6d399aab44749, type: 2}
+  - {fileID: 11400000, guid: ef4aa27ade12a7a4bb5bab689d8a1f2a, type: 2}
+  - {fileID: 11400000, guid: dff928a0d3c97c44491438ad2207a3ad, type: 2}
+  - {fileID: 11400000, guid: 645a09796a3007f41bd99dc1467a8ea6, type: 2}
+  - {fileID: 11400000, guid: c49dafe68a9e48b498cf1b4a9475751c, type: 2}
+  - {fileID: 11400000, guid: 69199992b0beace43bd162b5ba3e8336, type: 2}
+  - {fileID: 11400000, guid: 4805f6b28342b9549ad514b431308422, type: 2}
+  - {fileID: 11400000, guid: 3adfb3b0b755b624c89b97ca582ab9b2, type: 2}
+  - {fileID: 11400000, guid: 5e0e9b98aef4de242969054c4189d7dc, type: 2}
+--- !u!4 &1108212228
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108212226}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 484.66376, y: 296.82043, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1113950624
 GameObject:
   m_ObjectHideFlags: 0
@@ -4407,7 +4490,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1113950627}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8607374}
+        m_TargetAssemblyTypeName: MainGameMenuController, Assembly-CSharp
+        m_MethodName: OnSaveGamePressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1113950627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6489,7 +6584,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -375, y: 80.000015}
+  m_AnchoredPosition: {x: -280, y: 80.000015}
   m_SizeDelta: {x: 500, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1840022696
@@ -8107,3 +8202,4 @@ SceneRoots:
   - {fileID: 8607375}
   - {fileID: 1401608196}
   - {fileID: 1026905512}
+  - {fileID: 1108212228}

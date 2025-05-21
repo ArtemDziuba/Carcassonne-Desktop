@@ -30,6 +30,12 @@ public class PlayerManager : MonoBehaviour
         CurrentPlayerIndex = 0;
     }
 
+    public void SetCurrentPlayerIndex(int index)
+    {
+        if (index >= 0 && index < Players.Count)
+            CurrentPlayerIndex = index;
+    }
+
     /// <summary>
     /// Отримати поточного гравця.
     /// </summary>

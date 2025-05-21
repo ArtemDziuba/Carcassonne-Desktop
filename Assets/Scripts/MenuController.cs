@@ -6,6 +6,14 @@ using System.Collections.Generic;
 public class MenuController : MonoBehaviour
 {
     public GameObject helpScreen;
+    public GameObject pauseTint; // панель із затемненням + меню
+
+    void Start()
+    {
+        // Вимикаємо PauseTint на початку
+        if (pauseTint != null)
+            pauseTint.SetActive(false);
+    }
 
     public void OnNewGameClicked()
     {
@@ -33,7 +41,17 @@ public class MenuController : MonoBehaviour
 
     public void OnExitClicked()
     {
-        // TODO зробити вихід з гри
+        pauseTint.SetActive(true);
+        pauseTint.transform.SetAsLastSibling(); // перемістити на верхній шар
     }
 
+    public void OnDenyClicked()
+    {
+        pauseTint.SetActive(false);
+    }
+
+    public void OnConfirmClicked()
+    {
+        Application.Quit();
+    }
 }
