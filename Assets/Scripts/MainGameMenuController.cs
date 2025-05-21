@@ -10,6 +10,7 @@ public class MainGameMenuController : MonoBehaviour
     public Button resumeGameBtn;
     public Button exitToMenuBtn;
     public Button helpBtn;
+    public GameObject helpScreen;
 
     private bool isPaused = false;
 
@@ -28,7 +29,6 @@ public class MainGameMenuController : MonoBehaviour
 
         if (exitToMenuBtn != null)
             exitToMenuBtn.onClick.AddListener(OnExitToMenuPressed);
-
 
         if (helpBtn != null)
             helpBtn.onClick.AddListener(OnHelpPressed);
@@ -55,9 +55,12 @@ public class MainGameMenuController : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    private void OnHelpPressed()
+    public void OnHelpPressed()
     {
-        Time.timeScale = 1f; // Відновлюємо гру перед переходом
-        HelpSceneManager.OpenHelpScene();
+        if (helpScreen != null) 
+        { 
+            helpScreen.SetActive(true);
+            helpScreen.transform.SetAsLastSibling(); // перемістити на верхній шар
+        }
     }
 }
