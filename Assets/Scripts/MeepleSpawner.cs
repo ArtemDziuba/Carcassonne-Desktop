@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class MeepleSpawner : MonoBehaviour
 {
@@ -29,7 +30,10 @@ public class MeepleSpawner : MonoBehaviour
 
         currentMeeple = Instantiate(meeplePrefab);
         var sr = currentMeeple.GetComponent<SpriteRenderer>();
-        sr.sprite = meepleSprites[playerManager.CurrentPlayerIndex];
+
+        var currentPlayer = playerManager.GetCurrentPlayer();
+        sr.sprite = meepleSprites[currentPlayer.MeepleSpriteIndex];
+
         isPlacing = true;
     }
 
@@ -95,6 +99,8 @@ public class MeepleSpawner : MonoBehaviour
 
             if (StructureAnalyzer.IsStructureOccupied(board, tilePos, hoveredSlot.CoveredSegments))
             {
+                ToastManager.Instance.ShowToast(ToastType.Warning, 
+                    "Структура вже зайнята, міпл не може бути розміщений.");
                 Debug.Log("[MeepleSpawner] Структура вже зайнята, міпл не може бути розміщений.");
                 return;
             }

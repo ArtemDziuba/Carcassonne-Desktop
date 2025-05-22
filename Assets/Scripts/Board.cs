@@ -18,12 +18,15 @@ public class Board : MonoBehaviour
     {
         if (tile == null || tile.Data == null)
         {
+            ToastManager.Instance.ShowToast(ToastType.Error, $"Неможливо розмістити тайл у позиції " +
+                $"{position}: Tile або Tile.Data дорівнює null.");
             Debug.LogError($"Неможливо розмістити тайл у позиції {position}: Tile або Tile.Data дорівнює null.");
             return;
         }
 
         if (placedTiles.ContainsKey(position))
         {
+            ToastManager.Instance.ShowToast(ToastType.Error, $"Спроба розмістити тайл у вже зайнятій позиції {position}.");
             Debug.LogError($"Спроба розмістити тайл у вже зайнятій позиції {position}.");
             return;
         }
@@ -34,12 +37,16 @@ public class Board : MonoBehaviour
         // Очистити всі інші слоти
         ClearAllMeepleSlotsExcept(tile);
 
+        tile.ClearMeepleSlots();
+
         // Створити нові слоти тільки на цьому тайлі
         tile.CreateMeepleSlots();
 
         List<Segment> segments = tile.GetSegments();
         if (segments == null || segments.Count != 12)
         {
+            ToastManager.Instance.ShowToast(ToastType.Error, $"Помилка сегментів у тайлі на позиції " +
+                $"{position}: GetSegments() повертає некоректні дані.");
             Debug.LogError($"Помилка сегментів у тайлі на позиції {position}: GetSegments() повертає некоректні дані.");
             return;
         }

@@ -83,6 +83,9 @@ public class PlayerUIManager : MonoBehaviour
                 player.Score
             );
 
+            if (player.MeepleSpriteIndex == 1)
+                ui.meepleCountText.color = Color.black;
+
             playerUIItems.Add(ui);
         }
     }
