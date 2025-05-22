@@ -210,7 +210,10 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      seizingHelpImage_0: 3736329776329733213
+      seizingHelpImage_1: -1570023539844783043
+      seizingHelpImage_2: -2044540725240111524
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
