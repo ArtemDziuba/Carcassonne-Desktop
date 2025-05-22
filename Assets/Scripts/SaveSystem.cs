@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public static class SaveSystem
@@ -17,8 +18,7 @@ public static class SaveSystem
         if (!Directory.Exists(saveFolder))
             Directory.CreateDirectory(saveFolder);
 
-        // 1) Ініціалізуємо snapshot з фазою ходу
-        GameSnapshot snapshot = new GameSnapshot
+        var snapshot = new GameSnapshot
         {
             saveName = saveId,
             date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -31,62 +31,60 @@ public static class SaveSystem
             meeplePlaced = turnManager.meeplePlaced
         };
 
-        // 2) Зберігаємо тайли на полі
+        // --- Tiles on board ---
         foreach (var pair in board.placedTiles)
         {
-            Tile tile = pair.Value;
-            Vector2Int pos = pair.Key;
-
-            var placed = new PlacedTileData
+            var tile = pair.Value;
+            var data = new PlacedTileData
             {
                 tileName = tile.Data.name,
-                position = pos,
+                position = pair.Key,
                 rotation = tile.Rotation,
                 hasMonasteryMeeple = tile.HasMonasteryMeeple,
                 monasteryMeepleOwnerId = tile.HasMonasteryMeeple
-                                           ? tile.MonasteryMeepleOwner.PlayerId
-                                           : -1,
-                segmentData = new List<SegmentSaveData>()
+                                        ? tile.MonasteryMeepleOwner.PlayerId
+                                        : -1
             };
 
+            // Серіалізуємо **тільки** сегменти з міплами
             foreach (var seg in tile.GetSegments())
             {
-                placed.segmentData.Add(new SegmentSaveData
+                if (!seg.HasMeeple)
+                    continue;
+
+                data.segmentData.Add(new SegmentSaveData
                 {
                     id = seg.Id,
-                    hasMeeple = seg.HasMeeple,
-                    meepleOwnerId = seg.HasMeeple
-                                     ? seg.MeepleOwner.PlayerId
-                                     : -1
+                    hasMeeple = true,
+                    meepleOwnerId = seg.MeepleOwner != null
+                                    ? seg.MeepleOwner.PlayerId
+                                    : -1
                 });
             }
 
-            snapshot.placedTiles.Add(placed);
+            snapshot.placedTiles.Add(data);
         }
 
-        // 3) Зберігаємо гравців
-        foreach (var player in playerManager.Players)
+        // --- Players ---
+        foreach (var pl in playerManager.Players)
         {
             snapshot.players.Add(new PlayerSaveData
             {
-                id = player.PlayerId,
-                spriteIndex = player.MeepleSpriteIndex,
-                meepleCount = player.MeepleCount,
-                score = player.Score,
-                name = player.Name
+                id = pl.PlayerId,
+                spriteIndex = pl.MeepleSpriteIndex,
+                meepleCount = pl.MeepleCount,
+                score = pl.Score,
+                name = pl.Name
             });
         }
 
-        // 4) Зберігаємо решту колоди
+        // --- Deck ---
         foreach (var tileData in deckManager.fullDeck)
-        {
             snapshot.remainingTiles.Add(tileData.name);
-        }
 
-        // 5) Серіалізуємо в JSON і пишемо на диск
-        string json = JsonUtility.ToJson(snapshot, true);
+        var json = JsonUtility.ToJson(snapshot, true);
         File.WriteAllText(GetSavePath(saveId), json);
-        Debug.Log($"Гру збережено: {saveId}");
+        Debug.Log($"[SAVE] Гру збережено: {saveId} ({snapshot.placedTiles.Count} плиток)");
     }
 
     public static GameSnapshot LoadGame(string saveId)
