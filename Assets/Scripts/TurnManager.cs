@@ -23,20 +23,17 @@ public class TurnManager : MonoBehaviour
 
     void Start()
     {
-        if (GameConfig.Instance != null && GameConfig.Instance.Players.Count >= 2)
+        if (GameConfig.Instance != null)
         {
             playerManager.SetPlayers(GameConfig.Instance.Players);
             uiManager.InitializeUI(playerManager.Players);
         }
         else
         {
-            playerManager.CreatePlayers(3);
-            uiManager.InitializeUI(playerManager.Players);
-
             ToastManager.Instance.ShowToast(ToastType.Error,
-                "GameConfig.Instance не ≥н≥ц≥ал≥зовано або недостатньо гравц≥в.");
-            Debug.LogError("GameConfig.Instance не ≥н≥ц≥ал≥зовано або недостатньо гравц≥в.");
-            //return;
+                "ўось п≥шло не так.\nGameConfig.Instance не ≥н≥ц≥ал≥зовано.");
+            Debug.LogError("GameConfig.Instance не ≥н≥ц≥ал≥зовано.");
+            return;
         }
 
         chooseTileBtn.onClick.AddListener(OnChooseTile);

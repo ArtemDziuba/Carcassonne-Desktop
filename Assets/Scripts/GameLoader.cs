@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 
 public class GameLoader : MonoBehaviour
@@ -53,7 +54,8 @@ public class GameLoader : MonoBehaviour
 
         // 1) Відновлюємо гравців
         var players = snapshot.players
-            .Select(p => {
+            .Select(p =>
+            {
                 var pl = new Player(p.id, p.spriteIndex, p.name)
                 {
                     Score = p.score,
@@ -69,32 +71,38 @@ public class GameLoader : MonoBehaviour
         uiManager.InitializeUI(players);
         playerManager.SetCurrentPlayerIndex(snapshot.currentPlayerIndex);
 
-        // 2) Відновлюємо плитки
-        foreach (var placed in snapshot.placedTiles)
+        // 2) Фільтруємо placedTiles — беремо лише останню ітерацію для кожної позиції + імені тайла
+        var uniquePlacements = snapshot.placedTiles
+            .GroupBy(p => new { p.position, p.tileName })
+            .Select(g => g.Last())
+            .ToList();
+
+        // 3) Відновлюємо плитки
+        foreach (var placed in uniquePlacements)
         {
             Debug.Log($"[LOAD] Відновлюємо '{placed.tileName}' @ {placed.position} (segmentsWithMeeples: {placed.segmentData.Count})");
 
-            // 2.1) Знаходимо TileData
+            // 3.1) Знаходимо TileData
             if (!tileDataMap.TryGetValue(placed.tileName, out var data))
             {
                 Debug.LogError($"TileData '{placed.tileName}' не знайдено!");
                 continue;
             }
 
-            // 2.2) Instantiate + Initialize
+            // 3.2) Instantiate + Initialize
             var tile = Instantiate(tilePrefab);
             tile.Initialize(data);
             tile.ClearMeepleSlots();
 
-            // 2.3) Відновлюємо ротацію
+            // 3.3) Відновлюємо ротацію
             int turns = (placed.rotation / 90) % 4;
             for (int i = 0; i < turns; i++)
                 tile.RotateClockwise();
 
-            // 2.4) Ставимо на дошку (створює тіні й слоти)
+            // 3.4) Ставимо на дошку (створює тіні й слоти)
             board.PlaceTile(placed.position, tile);
 
-            // 2.5) Монастир, якщо є
+            // 3.5) Відновлюємо монастиря, якщо є
             if (placed.hasMonasteryMeeple && placed.monasteryMeepleOwnerId >= 0)
             {
                 var owner = players.First(p => p.PlayerId == placed.monasteryMeepleOwnerId);
@@ -107,43 +115,51 @@ public class GameLoader : MonoBehaviour
                 tile.PlaceMonasteryMeeple(owner, monGO);
             }
 
-            // 2.6) Відновлюємо всі інші міпли по segmentData
-            var slots = tile.GetComponentsInChildren<MeeplePlacementSlot>();
+            // 3.6) Відновлюємо всі інші міпли по segmentData
+            var slots = tile.GetComponentsInChildren<MeeplePlacementSlot>().Reverse();
             var segments = tile.GetSegments();
+
+            var segIds = segments.Select(s => s.Id).ToList();
+            //Debug.Log($"[LOAD][{placed.tileName}@{placed.position}] rotation={placed.rotation}, segments after rotate: [{string.Join(",", segIds)}]");  // <<< LOG HERE
+
+            //foreach (var slot in slots)
+            //{
+            //    Debug.Log($"[LOAD][{placed.tileName}] Slot covers segments: [{string.Join(",", slot.CoveredSegments)}]");  // <<< LOG HERE
+            //}
 
             foreach (var segSave in placed.segmentData)
             {
                 if (!segSave.hasMeeple || segSave.meepleOwnerId < 0)
                     continue;
+;
+                var slot = slots.FirstOrDefault(s => s.CoveredSegments.Contains(segSave.id));
+                if (slot == null || slot.IsOccupied)
+                    continue;
+                //Debug.Log($"[LOAD][{placed.tileName}] Slot SELECTED segments: [{string.Join(",", slot.CoveredSegments)}]");
 
                 var owner = players.First(p => p.PlayerId == segSave.meepleOwnerId);
 
-                // знаходимо слот, що покриває цей сегмент
-                var slot = slots.FirstOrDefault(s => s.CoveredSegments.Contains(segSave.id));
-                if (slot == null)
+                // Обчислюємо світову позицію з урахуванням обертання тайла
+                Vector3 localPos = slot.transform.localPosition;
+                if(placed.rotation == 90 || placed.rotation == 270)
                 {
-                    Debug.LogWarning($"[LOAD] Слот для сегменту {segSave.id} не знайдено на '{placed.tileName}'");
-                    continue;
+                    localPos.x *= -1;
+                    localPos.y *= -1;
                 }
+                Vector3 worldPos = tile.transform.position + (Quaternion.Euler(0, 0, placed.rotation) * localPos);
+                worldPos.z = tile.transform.position.z - 0.1f;
+                //Debug.Log($"[LOAD][{placed.tileName}] localPos: [{localPos}], worldPos: [{worldPos}]");
 
-                // якщо цей слот уже обробили — пропускаємо
-                if (slot.IsOccupied)
-                    continue;
-
-                // спавнимо міпл трохи над плиткою
-                Vector3 pos = slot.transform.position;
-                pos.z -= 0.1f;
-                var meepleGO = Instantiate(meepleSpawner.meeplePrefab, pos, Quaternion.identity);
+                var meepleGO = Instantiate(meepleSpawner.meeplePrefab, worldPos, Quaternion.identity);
                 var sr = meepleGO.GetComponent<SpriteRenderer>();
                 sr.sprite = meepleSpawner.meepleSprites[owner.MeepleSpriteIndex];
                 sr.sortingOrder = tile.GetComponent<SpriteRenderer>().sortingOrder + 1;
 
-                // позначаємо слот
+                // Позначаємо слот і оновлюємо модель сегментів
                 slot.IsOccupied = true;
                 slot.MeepleOwner = owner;
                 slot.CurrentMeeple = meepleGO;
 
-                // і оновлюємо модель усіх сегментів цього слоту
                 foreach (int segId in slot.CoveredSegments)
                 {
                     var seg = segments[segId];
@@ -154,20 +170,22 @@ public class GameLoader : MonoBehaviour
             }
         }
 
-        // 3) Відновлюємо колоду
+        // 4) Відновлюємо колоду
         deckManager.fullDeck = snapshot.remainingTiles
             .Select(name => tileDataMap[name])
             .ToList();
 
-        // 4) Оновлюємо UI та лічильник деки
+        // 5) Оновлюємо UI та лічильник деки
         uiManager.InitializeUI(players);
         turnManager.UpdateDeckCountUI();
         uiManager.SetActivePlayer(playerManager.CurrentPlayerIndex);
 
-        // 5) Відновлюємо фазу ходу
+        // 6) Відновлюємо фазу ходу
         turnManager.RestorePhase(snapshot.tilePlaced, snapshot.meeplePlaced);
 
         Debug.Log($"Гру «{snapshot.saveName}» успішно відновлено.");
+        ToastManager.Instance.ShowToast(ToastType.Success,
+                $"Гру «{snapshot.saveName}» успішно відновлено.");
     }
 
 }

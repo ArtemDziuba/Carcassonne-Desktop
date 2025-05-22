@@ -122,6 +122,9 @@ public class Tile : MonoBehaviour
         int shift = (Rotation / 90) * 3;
         foreach (var slotData in Data.MeepleSlots)
         {
+            if (slotData.Type == TerrainType.Field && !GameConfig.Instance.IsFieldEnabled)
+                continue;
+
             GameObject slotObj = new GameObject("MeepleSlot");
             slotObj.transform.SetParent(transform);
             slotObj.transform.localPosition = CalculateSlotPosition(slotData);

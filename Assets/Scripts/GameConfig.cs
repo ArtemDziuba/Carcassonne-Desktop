@@ -8,6 +8,15 @@ public class GameConfig : MonoBehaviour
     public List<Player> Players = new();
     public bool IsFieldEnabled { get; set; } = true;
 
+    private void Start()
+    {
+        if (Instance != null)
+            return;
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     private void Awake()
     {
         if (Instance == null)

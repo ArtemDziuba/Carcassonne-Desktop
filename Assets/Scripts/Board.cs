@@ -37,6 +37,8 @@ public class Board : MonoBehaviour
         // Очистити всі інші слоти
         ClearAllMeepleSlotsExcept(tile);
 
+        tile.ClearMeepleSlots();
+
         // Створити нові слоти тільки на цьому тайлі
         tile.CreateMeepleSlots();
 
