@@ -12,7 +12,7 @@ public class CameraZoom : MonoBehaviour
 
     [Header("Pan Settings")]
     [Tooltip("Ўвидк≥сть панорамуванн€")]
-    public float panSpeed = 10f;
+    public float panSpeed = 5f;
 
     [Header("Bounds Settings")]
     [Tooltip("SpriteRenderer вашого фону (background),\nсв≥тов≥ кордони €кого обмежують рух камери")]

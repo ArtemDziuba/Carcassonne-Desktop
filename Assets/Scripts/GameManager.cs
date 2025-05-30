@@ -8,8 +8,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        Screen.SetResolution(1980, 1080, false);
-
         Tile startTile = Instantiate(tilePrefab);
         startTile.Initialize(startTileData);
 
