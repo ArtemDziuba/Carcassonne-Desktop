@@ -27,7 +27,7 @@ public class SaveManager : MonoBehaviour
         foreach (Transform child in contentParent)
             Destroy(child.gameObject);
 
-        string[] saveFiles = Directory.GetFiles(saveFolder, "*.json");
+        string[] saveFiles = Directory.GetFiles(saveFolder, "*.dat");
 
         foreach (string filePath in saveFiles)
         {
@@ -54,7 +54,11 @@ public class SaveManager : MonoBehaviour
 
     private GameSnapshot LoadSnapshot(string path)
     {
-        string json = File.ReadAllText(path);
+        byte[] encrytpetJson = File.ReadAllBytes(path);
+
+        AES crypto = new AES();
+        string json = crypto.Decrypt(encrytpetJson);
+
         return JsonUtility.FromJson<GameSnapshot>(json);
     }
 
@@ -77,7 +81,7 @@ public class SaveManager : MonoBehaviour
 
     private void OnDeleteSave(string saveId)
     {
-        string path = Path.Combine(saveFolder, $"{saveId}.json");
+        string path = Path.Combine(saveFolder, $"{saveId}.dat");
         if (File.Exists(path))
             File.Delete(path);
 
