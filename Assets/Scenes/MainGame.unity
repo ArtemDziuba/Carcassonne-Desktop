@@ -5309,7 +5309,7 @@ MonoBehaviour:
   spacing: 30
   gameOverPanel: {fileID: 2091616450}
   gameOverContent: {fileID: 478688618}
-  gameOverEntryPrefab: {fileID: 2918964422469630052, guid: 9a979dcf59b6bfa42a2ee09a79e2d6f8, type: 3}
+  gameOverEntryPrefab: {fileID: 2918964422469630052, guid: 4725f75e3ec4ac944972edd71982596f, type: 3}
   playerManager: {fileID: 33227488}
 --- !u!1 &1438694927
 GameObject:
@@ -7009,7 +7009,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 273242}
   m_HandleRect: {fileID: 273241}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
