@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за збереження/завантаження гри безпосередньо на дошці
 [Serializable]
 public class GameSnapshot
 {

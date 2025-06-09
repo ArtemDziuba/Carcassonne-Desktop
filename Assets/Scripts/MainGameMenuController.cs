@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 
+// Клас, що відповідає за меню безпосередньо у грі
 public class MainGameMenuController : MonoBehaviour
 {
     [Header("UI Elements")]

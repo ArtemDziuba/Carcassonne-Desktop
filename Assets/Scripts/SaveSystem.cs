@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
+// Клас, що відповідає за реалізацію збережень
 public static class SaveSystem
 {
     private static readonly string saveFolder = Path.Combine(Application.persistentDataPath, "Saves");

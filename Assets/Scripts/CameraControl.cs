@@ -1,27 +1,37 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// Клас, що відповідає за поводження камери на дошці гри
 [RequireComponent(typeof(Camera))]
-public class CameraZoom : MonoBehaviour
+public class CameraControl : MonoBehaviour
 {
+    public static CameraControl Instance;
+
     [Header("Zoom Settings")]
     [Tooltip("Швидкість масштабування коліщатком миші")]
     public float zoomSpeed = 100f;
-    public float minSize = 3f;
-    public float maxSize = 15f;
+
+    private float minSize = 3f;
+    private float maxSize = 15f;
 
     [Header("Pan Settings")]
     [Tooltip("Швидкість панорамування")]
     public float panSpeed = 5f;
 
     [Header("Bounds Settings")]
-    [Tooltip("SpriteRenderer вашого фону (background),\nсвітові кордони якого обмежують рух камери")]
+    [Tooltip("SpriteRenderer фону (background),\nсвітові кордони якого обмежують рух камери")]
     public SpriteRenderer backgroundRenderer;
 
     private Camera cam;
 
     void Start()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+
         cam = GetComponent<Camera>();
         if (!cam.orthographic)
             Debug.LogWarning("CameraZoom розрахований на ортографічну камеру.");

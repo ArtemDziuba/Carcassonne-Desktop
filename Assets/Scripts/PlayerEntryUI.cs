@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Клас, що відповідає за UI на сцені налаштування гри
 public class PlayerEntryUI : MonoBehaviour
 {
     public int playerId;

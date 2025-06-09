@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за сегмент тайлу
 [System.Serializable]
 public class Segment
 {

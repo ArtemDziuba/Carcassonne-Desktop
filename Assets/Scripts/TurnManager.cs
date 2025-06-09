@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Клас, що відповідає за розподіл ходів безпосередньо у грі
 public class TurnManager : MonoBehaviour
 {
     [Header("Managers & Spawners")]

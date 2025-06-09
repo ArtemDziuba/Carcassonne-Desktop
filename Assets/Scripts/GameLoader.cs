@@ -3,6 +3,7 @@ using System.Linq;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
 
+// Клас, що відповідає за завантаження гри
 public class GameLoader : MonoBehaviour
 {
     [Header("References")]

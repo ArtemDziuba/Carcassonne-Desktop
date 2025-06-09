@@ -1,3 +1,5 @@
+
+// Клас, що відповідає за дані гравців
 public class Player
 {
     public int PlayerId { get; private set; }

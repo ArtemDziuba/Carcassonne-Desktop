@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за логіку роботи тайлів
 public class Tile : MonoBehaviour
 {
     public TileData Data { get; private set; }

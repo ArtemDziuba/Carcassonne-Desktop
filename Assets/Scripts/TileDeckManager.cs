@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за колоду тайлів
 public class TileDeckManager : MonoBehaviour
 {
     public List<TileData> uniqueTiles; // 24 asset-и

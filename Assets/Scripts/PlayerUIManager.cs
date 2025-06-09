@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
+// Клас, що відповідає за керування UI гравців безпосередньо у грі
 public class PlayerUIManager : MonoBehaviour
 {
     [Header("Live Player UI")]

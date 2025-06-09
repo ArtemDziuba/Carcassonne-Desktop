@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за дошку гри
 public class Board : MonoBehaviour
 {
     public Dictionary<Vector2Int, Tile> placedTiles = new();

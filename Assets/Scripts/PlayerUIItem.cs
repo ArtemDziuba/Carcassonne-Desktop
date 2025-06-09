@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// Клас, що відповідає за UI гравців безпосередньо у грі
 public class PlayerUIItem : MonoBehaviour
 {
     [Header("Background & State")]

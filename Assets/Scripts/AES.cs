@@ -6,6 +6,7 @@ using System.Text;
 using static UnityEngine.UI.Image;
 using UnityEngine.InputSystem;
 
+// Клас, що відповідає за шифрування та розшифрування даних у збереженні
 public class AES 
 {
                                                   //12345678901234567890123456789012 - 32 char

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за контроль гравців
 public class PlayerManager : MonoBehaviour
 {
     public int playerCount = 2;

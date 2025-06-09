@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за перевірку структури на наявність на ній міплів
 public static class StructureAnalyzer
 {
     private static readonly int[][] sideIndices = new int[][]

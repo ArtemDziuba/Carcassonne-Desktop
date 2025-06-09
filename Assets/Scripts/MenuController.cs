@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+// Клас, що відповідає за роботу меню у головному меню та за повернення до нього
 public class MenuController : MonoBehaviour
 {
     public GameObject helpScreen;
@@ -28,6 +29,16 @@ public class MenuController : MonoBehaviour
     public void OnSavesClicked()
     {
         SceneManager.LoadScene("SavesScene");
+    }
+
+    public void OnSettingsClicked()
+    {
+        //TODO
+    }
+
+    public void OnAdditionalInfoClicked()
+    {
+        //TODO
     }
 
     public void OnHelpClicked()

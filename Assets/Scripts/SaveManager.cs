@@ -3,6 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Клас, що відповідає за роботу збережень
 public class SaveManager : MonoBehaviour
 {
     [Header("UI References")]

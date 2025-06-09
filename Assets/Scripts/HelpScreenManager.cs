@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+// Клас, що відповідає за екран допомоги
 public class HelpScreenManager : MonoBehaviour
 {
     [Header("Основна панель")]

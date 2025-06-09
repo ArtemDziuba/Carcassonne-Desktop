@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 
+// Клас, що відповідає за відображення збережень у меню збережень
 public class SaveEntryUI : MonoBehaviour
 {
     [Header("UI Elements")]

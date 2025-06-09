@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+// Клас, що відповідає за роботу меню на сцені налаштування гри
 public class PlayerSetupMenu : MonoBehaviour
 {
     public static PlayerSetupMenu Instance; // Для глобального доступу

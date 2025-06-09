@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// Клас, що відповідає за встановлення даних гри
 public class GameConfig : MonoBehaviour
 {
     public static GameConfig Instance;

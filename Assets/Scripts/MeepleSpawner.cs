@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
+// Клас, що відповідає за створення міплів безпосередньо у грі
 public class MeepleSpawner : MonoBehaviour
 {
     public GameObject meeplePrefab;

@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Клас, що відповідає за контроль гри
 public class GameManager : MonoBehaviour
 {
     public Tile tilePrefab;

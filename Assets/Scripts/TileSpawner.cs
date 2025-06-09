@@ -2,12 +2,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
+// Клас, що відповідає за створення та розміщення тайлів безпосередньо у грі
 public class TileSpawner : MonoBehaviour
 {
     public Tile tilePrefab;
     public Board board;
     public TileDeckManager deck;
-    public PlacementOverlayManager overlayManager;
+    public ShadowOverlayManager overlayManager;
 
     private Tile currentTile;
     private Camera mainCamera;
