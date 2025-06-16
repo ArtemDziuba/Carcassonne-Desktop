@@ -21,6 +21,8 @@ public class HelpScreenManager : MonoBehaviour
 
     [SerializeField] private ScrollRect scrollRect;
 
+    AudioManager audioManager;
+
     void Awake()
     {
         allImages = new List<GameObject>
@@ -33,6 +35,8 @@ public class HelpScreenManager : MonoBehaviour
             fieldsImage,
             endGameImage
         };
+
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     /// <summary>
@@ -48,7 +52,8 @@ public class HelpScreenManager : MonoBehaviour
     {
         HideAllImages();
         generalImage.SetActive(true);
-        ScrollToTop();  
+        ScrollToTop();
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     public void ShowControls()
@@ -56,6 +61,7 @@ public class HelpScreenManager : MonoBehaviour
         HideAllImages();
         controlsImage.SetActive(true);
         ScrollToTop();
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     public void ShowRoads()
@@ -63,6 +69,7 @@ public class HelpScreenManager : MonoBehaviour
         HideAllImages();
         roadsImage.SetActive(true);
         ScrollToTop();
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     public void ShowCities()
@@ -70,6 +77,7 @@ public class HelpScreenManager : MonoBehaviour
         HideAllImages();
         citiesImage.SetActive(true);
         ScrollToTop();
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     public void ShowMonasteries()
@@ -77,6 +85,7 @@ public class HelpScreenManager : MonoBehaviour
         HideAllImages();
         monasteriesImage.SetActive(true);
         ScrollToTop();
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     public void ShowFields()
@@ -84,6 +93,7 @@ public class HelpScreenManager : MonoBehaviour
         HideAllImages();
         fieldsImage.SetActive(true);
         ScrollToTop();
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     public void ShowEndGame()
@@ -91,11 +101,13 @@ public class HelpScreenManager : MonoBehaviour
         HideAllImages();
         endGameImage.SetActive(true);
         ScrollToTop();
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     public void OnReturnClicked()
     {
         helpScreen.SetActive(false);
+        audioManager.PlaySFX(audioManager.buttonClick);
     }
 
     private void ScrollToTop()

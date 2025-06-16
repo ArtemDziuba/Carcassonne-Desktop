@@ -18,8 +18,18 @@ public class MainGameMenuController : MonoBehaviour
     public TileDeckManager deck;
     public PlayerManager playerManager;
     public TurnManager turnManager;
-        
+    public GameObject settingsScreen;
+
+    public CameraControl cameraControl;
+            
     private bool isPaused = false;
+
+    public AudioManager audioManager;
+
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
 
     void Start()
     {
@@ -43,14 +53,34 @@ public class MainGameMenuController : MonoBehaviour
 
     private void OnPausePressed()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         isPaused = true;
         Time.timeScale = 0f; // Зупиняємо гру
         pauseTint.SetActive(true);
         pauseTint.transform.SetAsLastSibling(); // перемістити на верхній шар
     }
 
+    public void OnSettingsClicked()
+    {
+        audioManager.PlaySFX(audioManager.buttonClick);
+
+        settingsScreen.SetActive(true);
+    }
+
+    public void OnConfirmSettingsClicked()
+    {
+        cameraControl.SetZoomSpeed();
+        cameraControl.SetPanSpeed();
+        audioManager.SetVolume();
+
+        audioManager.PlaySFX(audioManager.buttonClick);
+
+        settingsScreen.SetActive(false);
+    }
+
     private void OnResumePressed()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         isPaused = false;
         Time.timeScale = 1f; // Продовжуємо гру
         pauseTint.SetActive(false);
@@ -58,14 +88,16 @@ public class MainGameMenuController : MonoBehaviour
 
     private void OnExitToMenuPressed()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         Time.timeScale = 1f; // Відновлюємо гру перед переходом
         SceneManager.LoadScene("MainMenu");
     }
 
     public void OnHelpPressed()
     {
-        if (helpScreen != null) 
-        { 
+        if (helpScreen != null)
+        {
+            audioManager.PlaySFX(audioManager.buttonClick);
             helpScreen.SetActive(true);
             helpScreen.transform.SetAsLastSibling(); // перемістити на верхній шар
         }
@@ -73,6 +105,7 @@ public class MainGameMenuController : MonoBehaviour
 
     public void OnSaveGamePressed()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         string saveId = $"Save_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
         SaveSystem.SaveGame(saveId, board, playerManager, deck, turnManager);
         ToastManager.Instance.ShowToast(ToastType.Success, "Гру збережено.");

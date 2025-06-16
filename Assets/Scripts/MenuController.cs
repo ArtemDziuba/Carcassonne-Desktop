@@ -7,7 +7,18 @@ using System.Collections.Generic;
 public class MenuController : MonoBehaviour
 {
     public GameObject helpScreen;
-    public GameObject pauseTint; // панель із затемненням + меню
+    public GameObject pauseTint; // панель із затемненням
+    public GameObject exitScreen;
+    public GameObject settingsScreen;
+    public GameObject infoScreen;
+
+    public CameraControl cameraControl;
+    public AudioManager audioManager;
+
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
 
     void Start()
     {
@@ -18,31 +29,49 @@ public class MenuController : MonoBehaviour
 
     public void OnNewGameClicked()
     {
+        //audioManager.PlaySFX(audioManager.buttonClick);
         SceneManager.LoadScene("PlayerSetupScene");
-    }
-
-    public void OnReturnToMenuClicked()
-    {
-        SceneManager.LoadScene("MainMenu");
-    }
+    }     
 
     public void OnSavesClicked()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         SceneManager.LoadScene("SavesScene");
     }
 
     public void OnSettingsClicked()
     {
-        //TODO
+        audioManager.PlaySFX(audioManager.buttonClick);
+
+        pauseTint.SetActive(true);
+        pauseTint.transform.SetAsLastSibling(); // перемістити на верхній шар
+        settingsScreen.SetActive(true);
+    }
+
+    public void OnConfirmSettingsClicked()
+    {
+        cameraControl.SetZoomSpeed();
+        cameraControl.SetPanSpeed();
+        audioManager.SetVolume();
+
+        audioManager.PlaySFX(audioManager.buttonClick);
+
+        pauseTint.SetActive(false);
+        settingsScreen.SetActive(false);
     }
 
     public void OnAdditionalInfoClicked()
     {
-        //TODO
+        audioManager.PlaySFX(audioManager.buttonClick);
+
+        pauseTint.SetActive(true);
+        pauseTint.transform.SetAsLastSibling(); // перемістити на верхній шар
+        infoScreen.SetActive(true);
     }
 
     public void OnHelpClicked()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         if (helpScreen != null)
         {
             helpScreen.SetActive(true);
@@ -52,13 +81,19 @@ public class MenuController : MonoBehaviour
 
     public void OnExitClicked()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         pauseTint.SetActive(true);
         pauseTint.transform.SetAsLastSibling(); // перемістити на верхній шар
+        exitScreen.SetActive(true);
     }
 
     public void OnDenyClicked()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         pauseTint.SetActive(false);
+        exitScreen.SetActive(false);
+        settingsScreen.SetActive(false);
+        infoScreen.SetActive(false);
     }
 
     public void OnConfirmClicked()

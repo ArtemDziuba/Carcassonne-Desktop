@@ -9,6 +9,7 @@ public class TileSpawner : MonoBehaviour
     public Board board;
     public TileDeckManager deck;
     public ShadowOverlayManager overlayManager;
+    public TurnManager turnManager;
 
     private Tile currentTile;
     private Camera mainCamera;
@@ -65,6 +66,7 @@ public class TileSpawner : MonoBehaviour
                 board.PlaceTile(snappedGridPos.Value, currentTile);
                 overlayManager.Clear();
                 currentTile = null;
+                turnManager.OnTilePlaced();
             }
             else
             {

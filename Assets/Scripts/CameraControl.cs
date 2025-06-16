@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using static UnityEditor.SceneView;
 
 // Клас, що відповідає за поводження камери на дошці гри
 [RequireComponent(typeof(Camera))]
@@ -9,14 +12,14 @@ public class CameraControl : MonoBehaviour
 
     [Header("Zoom Settings")]
     [Tooltip("Швидкість масштабування коліщатком миші")]
-    public float zoomSpeed = 100f;
+    public float zoomSpeed;
 
     private float minSize = 3f;
     private float maxSize = 15f;
 
     [Header("Pan Settings")]
     [Tooltip("Швидкість панорамування")]
-    public float panSpeed = 5f;
+    public float panSpeed;
 
     [Header("Bounds Settings")]
     [Tooltip("SpriteRenderer фону (background),\nсвітові кордони якого обмежують рух камери")]
@@ -24,15 +27,27 @@ public class CameraControl : MonoBehaviour
 
     private Camera cam;
 
+    public Slider zoomSpeedSlider;
+    public Slider panSpeedSlider;
+
     void Start()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
+        else if (Instance != this)
+        {
+            Destroy(gameObject); // знищити дублікати
+        }
+        
+        zoomSpeed = GameConfig.Instance.zoomSpeed;
+        panSpeed = GameConfig.Instance.panSpeed;
 
-        cam = GetComponent<Camera>();
+        zoomSpeedSlider.value = zoomSpeed;
+        panSpeedSlider.value = panSpeed;
+
+            cam = GetComponent<Camera>();
         if (!cam.orthographic)
             Debug.LogWarning("CameraZoom розрахований на ортографічну камеру.");
         if (backgroundRenderer == null)
@@ -45,6 +60,18 @@ public class CameraControl : MonoBehaviour
         HandleMousePan();
         HandleKeyboardPan();
         ClampCameraPosition();
+    }    
+
+    public void SetZoomSpeed()
+    {
+        zoomSpeed = zoomSpeedSlider.value;
+        GameConfig.Instance.zoomSpeed = zoomSpeed;
+    }
+
+    public void SetPanSpeed()
+    {
+        panSpeed = panSpeedSlider.value;
+        GameConfig.Instance.panSpeed = panSpeed;
     }
 
     private void HandleZoom()

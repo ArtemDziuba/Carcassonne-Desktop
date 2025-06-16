@@ -22,6 +22,13 @@ public class TurnManager : MonoBehaviour
     public bool tilePlaced = false;
     public bool meeplePlaced = false;
 
+    AudioManager audioManager;
+
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
+
     void Start()
     {
         if (GameConfig.Instance != null)
@@ -83,12 +90,17 @@ public class TurnManager : MonoBehaviour
     /// </summary>
     private void OnChooseTile()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         // Витягаємо та спавнимо тайл
         tileSpawner.SpawnNextTile();
 
         ToastManager.Instance.ShowToast(ToastType.Info,
-                "ПКМ - для обертання тайлу.", 5f);
+                "ПКМ - для обертання тайлу.", 5f);        
+    }
 
+    public void OnTilePlaced()
+    {
+        audioManager.PlaySFX(audioManager.tilePlaced);
         tilePlaced = true;
         chooseTileBtn.interactable = false;
 
@@ -104,6 +116,7 @@ public class TurnManager : MonoBehaviour
     /// </summary>
     private void OnPlaceMeeple()
     {
+        audioManager.PlaySFX(audioManager.meeplePlace);
         var current = playerManager.GetCurrentPlayer();
         if (!current.HasMeeples())
         {
@@ -126,6 +139,8 @@ public class TurnManager : MonoBehaviour
     {
         if (!tilePlaced) return;
 
+        audioManager.PlaySFX(audioManager.buttonClick);
+
         // Підрахунок очок за щойно завершені структури
         StructureScorer.ScoreCompletedStructures(board, playerManager, uiManager);
 
@@ -146,6 +161,8 @@ public class TurnManager : MonoBehaviour
     /// </summary>
     public void OnMeeplePlaced()
     {
+        audioManager.PlaySFX(audioManager.tilePlaced);
+
         meeplePlaced = true;
         endTurnBtn.interactable = true;
 

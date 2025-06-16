@@ -16,7 +16,7 @@ public class PlayerEntryUI : MonoBehaviour
 
     private List<Sprite> meepleSprites;
     private int selectedSpriteIndex = 0;
-
+    
     public void Initialize(int id, List<Sprite> sprites, int defaultMeepleIndex)
     {
         playerId = id;

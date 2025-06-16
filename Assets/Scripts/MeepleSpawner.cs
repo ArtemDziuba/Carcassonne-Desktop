@@ -19,6 +19,13 @@ public class MeepleSpawner : MonoBehaviour
     private MeeplePlacementSlot hoveredSlot;
     private Camera mainCamera;
 
+    AudioManager audioManager;
+
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
+
     private void Start()
     {
         mainCamera = Camera.main;
@@ -45,6 +52,8 @@ public class MeepleSpawner : MonoBehaviour
         // Відміна розміщення ПКМ
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
+            audioManager.PlaySFX(audioManager.meepleTakeBack);
+
             Destroy(currentMeeple);
             currentMeeple = null;
             isPlacing = false;
@@ -77,8 +86,11 @@ public class MeepleSpawner : MonoBehaviour
 
     private void TryPlaceMeeple()
     {
-        if (hoveredSlot == null) return;
-
+        if (hoveredSlot == null)
+        {
+            audioManager.PlaySFX(audioManager.reject);
+            return;
+        }
         var tile = hoveredSlot.GetComponentInParent<Tile>();
         var player = playerManager.GetCurrentPlayer();
 

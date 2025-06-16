@@ -28,6 +28,7 @@ public class PlayerUIManager : MonoBehaviour
 
     [Header("References")]
     public PlayerManager playerManager;
+    AudioManager audioManager;
 
     void Awake()
     {
@@ -54,6 +55,8 @@ public class PlayerUIManager : MonoBehaviour
                 scrollRect.vertical = true;
             }
         }
+
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     public void InitializeUI(System.Collections.Generic.List<Player> players)
@@ -181,6 +184,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public void HideGameOverUI()
     {
+        audioManager.PlaySFX(audioManager.tilePlaced);
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
     }
