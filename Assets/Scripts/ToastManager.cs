@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
+// Клас, що відповідає за керування тостами
 public class ToastManager : MonoBehaviour
 {
     public static ToastManager Instance;

@@ -1,12 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// Клас, що відповідає за встановлення даних гри
 public class GameConfig : MonoBehaviour
 {
     public static GameConfig Instance;
 
     public List<Player> Players = new();
     public bool IsFieldEnabled { get; set; } = true;
+
+    public float zoomSpeed = 100f;
+    public float panSpeed = 5f;
+    public float volume = 1f;
 
     private void Start()
     {

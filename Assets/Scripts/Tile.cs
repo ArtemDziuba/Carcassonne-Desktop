@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за логіку роботи тайлів
 public class Tile : MonoBehaviour
 {
     public TileData Data { get; private set; }
@@ -13,6 +14,8 @@ public class Tile : MonoBehaviour
     private Player monasteryMeepleOwner;
     public Player MonasteryMeepleOwner => monasteryMeepleOwner;
     private GameObject monasteryMeepleObject;
+
+    public int stuckCounter = 0;
 
     // Сегменти для доріг/міст/полів
     private List<Segment> rotatedSegments;
@@ -38,6 +41,7 @@ public class Tile : MonoBehaviour
 
     public void RotateClockwise()
     {
+        stuckCounter += 1;
         Rotation = (Rotation + 90) % 360;
         RotateSegments(90);
         UpdateRotation();

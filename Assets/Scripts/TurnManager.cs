@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Клас, що відповідає за розподіл ходів безпосередньо у грі
 public class TurnManager : MonoBehaviour
 {
     [Header("Managers & Spawners")]
@@ -16,10 +17,18 @@ public class TurnManager : MonoBehaviour
     public Button chooseTileBtn;
     public Button placeMeepleBtn;
     public Button endTurnBtn;
+    public Button unstuckBtn;
     public TextMeshProUGUI chooseTileBtnText;
 
     public bool tilePlaced = false;
     public bool meeplePlaced = false;
+
+    AudioManager audioManager;
+
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
 
     void Start()
     {
@@ -39,8 +48,15 @@ public class TurnManager : MonoBehaviour
         chooseTileBtn.onClick.AddListener(OnChooseTile);
         placeMeepleBtn.onClick.AddListener(OnPlaceMeeple);
         endTurnBtn.onClick.AddListener(OnEndTurn);
-
+        unstuckBtn.onClick.AddListener(OnUnstuck);
         NextTurnSetup();
+    }        
+
+    private void OnUnstuck()
+    {
+        tileSpawner.SwapTileToDeck();
+
+        unstuckBtn.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -65,6 +81,7 @@ public class TurnManager : MonoBehaviour
         placeMeepleBtn.interactable = false;
         endTurnBtn.interactable = false;
 
+
         // Оновлюємо лічильник тайлів на кнопці
         chooseTileBtnText.text = deckManager.TilesRemaining.ToString();
 
@@ -82,19 +99,25 @@ public class TurnManager : MonoBehaviour
     /// </summary>
     private void OnChooseTile()
     {
+        audioManager.PlaySFX(audioManager.buttonClick);
         // Витягаємо та спавнимо тайл
+        chooseTileBtn.interactable = false;
         tileSpawner.SpawnNextTile();
 
         ToastManager.Instance.ShowToast(ToastType.Info,
-                "ПКМ - для обертання тайлу.", 5f);
+                "ПКМ - для обертання тайлу.", 5f);        
+    }
 
+    public void OnTilePlaced()
+    {
+        audioManager.PlaySFX(audioManager.tilePlaced);
         tilePlaced = true;
-        chooseTileBtn.interactable = false;
 
         // Оновлюємо кнопки
         var current = playerManager.GetCurrentPlayer();
         placeMeepleBtn.interactable = current.HasMeeples();
         endTurnBtn.interactable = true;
+        unstuckBtn.gameObject.SetActive(false);
         chooseTileBtnText.text = deckManager.TilesRemaining.ToString();
     }
 
@@ -103,6 +126,7 @@ public class TurnManager : MonoBehaviour
     /// </summary>
     private void OnPlaceMeeple()
     {
+        audioManager.PlaySFX(audioManager.meeplePlace);
         var current = playerManager.GetCurrentPlayer();
         if (!current.HasMeeples())
         {
@@ -125,6 +149,8 @@ public class TurnManager : MonoBehaviour
     {
         if (!tilePlaced) return;
 
+        audioManager.PlaySFX(audioManager.buttonClick);
+
         // Підрахунок очок за щойно завершені структури
         StructureScorer.ScoreCompletedStructures(board, playerManager, uiManager);
 
@@ -145,6 +171,8 @@ public class TurnManager : MonoBehaviour
     /// </summary>
     public void OnMeeplePlaced()
     {
+        audioManager.PlaySFX(audioManager.tilePlaced);
+
         meeplePlaced = true;
         endTurnBtn.interactable = true;
 

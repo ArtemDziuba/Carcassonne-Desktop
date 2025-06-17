@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за дані та логіку тайлу підсвітки розміщення
 public class ShadowTileData
 {
     public Vector2Int Position;

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за логіку слота для постановки міпла
 [RequireComponent(typeof(BoxCollider2D))]
 public class MeeplePlacementSlot : MonoBehaviour
 {

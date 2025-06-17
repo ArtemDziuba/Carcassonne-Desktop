@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
+// Клас, що відповідає за перенесення 1 тосту на іншу сцену 
+// Наразі не використовується
 public class ToastBridge : MonoBehaviour
 {
     private static ToastType toastType;

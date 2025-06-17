@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за збереження інформації розміщених тайлів на дошці
 [Serializable]
 public class PlacedTileData
 {

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+// Клас, що відповідає за роботу меню на сцені налаштування гри
 public class PlayerSetupMenu : MonoBehaviour
 {
     public static PlayerSetupMenu Instance; // Для глобального доступу
@@ -21,10 +22,13 @@ public class PlayerSetupMenu : MonoBehaviour
     private int nextPlayerId = 0;
     private Stack<int> availableIds = new(); // звільнені ID
 
+    AudioManager audioManager;
+
     private void Awake()
     {
         if (Instance == null)
             Instance = this;
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     private void Start()
@@ -42,10 +46,13 @@ public class PlayerSetupMenu : MonoBehaviour
     {
         if (playerEntries.Count >= MaxPlayers)
         {
+            audioManager.PlaySFX(audioManager.reject);
             ToastManager.Instance.ShowToast(ToastType.Warning, "Максимальна кількість гравців досягнута.");
             Debug.LogWarning("Максимальна кількість гравців досягнута.");
             return;
         }
+
+        audioManager.PlaySFX(audioManager.buttonClick);
 
         GameObject entryGO = Instantiate(PlayerEntryPrefab, PlayerContainer);
         PlayerEntryUI entryUI = entryGO.GetComponent<PlayerEntryUI>();
@@ -61,10 +68,13 @@ public class PlayerSetupMenu : MonoBehaviour
     {
         if (playerEntries.Count <= MinPlayers)
         {
+            audioManager.PlaySFX(audioManager.reject);
             ToastManager.Instance.ShowToast(ToastType.Warning, "Мінімальна кількість гравців — 2.");
             Debug.LogWarning("Мінімальна кількість гравців — 2. Видалення заборонене.");
             return;
         }
+
+        audioManager.PlaySFX(audioManager.buttonClick);
 
         PlayerEntryUI lastEntry = playerEntries[playerEntries.Count - 1];
         availableIds.Push(lastEntry.playerId);
@@ -99,6 +109,7 @@ public class PlayerSetupMenu : MonoBehaviour
                 requester.SetMeeple(newMeepleId);
                 other.SetMeeple(oldRequesterMeeple);
 
+                audioManager.PlaySFX(audioManager.buttonClick);
                 Debug.Log($"Обмін міплів між гравцем {requester.playerId} та {other.playerId}");
                 return;
             }
@@ -132,7 +143,15 @@ public class PlayerSetupMenu : MonoBehaviour
         GameConfig.Instance.Players = players;
         GameConfig.Instance.IsFieldEnabled = fieldSetupToggle.isOn;
 
+        audioManager.PlaySFX(audioManager.buttonClick);
         // Завантажити основну ігрову сцену
         SceneManager.LoadScene("MainGame");
+    }
+
+    public void OnReturnToMenuClicked()
+    {
+        audioManager.PlaySFX(audioManager.buttonClick);
+
+        SceneManager.LoadScene("MainMenu");
     }
 }

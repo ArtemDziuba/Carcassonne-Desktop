@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Клас, що відповідає за збереження даних тайлів
 [CreateAssetMenu(fileName = "TileData", menuName = "Carcassonne/Tile Data")]
 public class TileData : ScriptableObject
 {

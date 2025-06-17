@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlacementOverlayManager : MonoBehaviour
+// Клас, що відповідає за підсвічення можливих місць розміщення тайлів
+public class ShadowOverlayManager : MonoBehaviour
 {
-    public PlacementTile placementTilePrefab;
+    public ShadowTile placementTilePrefab;
 
     private List<GameObject> currentOverlays = new();
 

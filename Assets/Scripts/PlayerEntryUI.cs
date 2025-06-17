@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Клас, що відповідає за UI на сцені налаштування гри
 public class PlayerEntryUI : MonoBehaviour
 {
     public int playerId;
@@ -15,7 +16,7 @@ public class PlayerEntryUI : MonoBehaviour
 
     private List<Sprite> meepleSprites;
     private int selectedSpriteIndex = 0;
-
+    
     public void Initialize(int id, List<Sprite> sprites, int defaultMeepleIndex)
     {
         playerId = id;

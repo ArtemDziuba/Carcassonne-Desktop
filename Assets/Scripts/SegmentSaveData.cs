@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// Клас, що відповідає за збереження даних сегментів тайлів
 [Serializable]
 public class SegmentSaveData
 {

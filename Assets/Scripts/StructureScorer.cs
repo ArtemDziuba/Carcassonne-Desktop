@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// Клас, що відповідає за нарахування очків за структури
 /// <summary>
 /// Обчислює очки за структури під час гри та в кінці гри.
 /// </summary>

@@ -3,6 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Клас, що відповідає за роботу збережень
 public class SaveManager : MonoBehaviour
 {
     [Header("UI References")]
@@ -11,6 +12,13 @@ public class SaveManager : MonoBehaviour
     [SerializeField] private Sprite defaultThumbnail;
 
     private string saveFolder;
+
+    AudioManager audioManager;
+
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
 
     private void Start()
     {
@@ -27,7 +35,7 @@ public class SaveManager : MonoBehaviour
         foreach (Transform child in contentParent)
             Destroy(child.gameObject);
 
-        string[] saveFiles = Directory.GetFiles(saveFolder, "*.json");
+        string[] saveFiles = Directory.GetFiles(saveFolder, "*.dat");
 
         foreach (string filePath in saveFiles)
         {
@@ -54,7 +62,11 @@ public class SaveManager : MonoBehaviour
 
     private GameSnapshot LoadSnapshot(string path)
     {
-        string json = File.ReadAllText(path);
+        byte[] encrytpetJson = File.ReadAllBytes(path);
+
+        AES crypto = new AES();
+        string json = crypto.Decrypt(encrytpetJson);
+
         return JsonUtility.FromJson<GameSnapshot>(json);
     }
 
@@ -64,9 +76,11 @@ public class SaveManager : MonoBehaviour
 
         if (snapshot == null)
         {
+            audioManager.PlaySFX(audioManager.reject);
             ToastManager.Instance?.ShowToast(ToastType.Error, "Не вдалося завантажити збереження.");
             return;
         }
+        audioManager.PlaySFX(audioManager.buttonClick);
 
         // Зберігаємо snapshot тимчасово для наступної сцени
         TempGameData.snapshotToLoad = snapshot;
@@ -77,10 +91,17 @@ public class SaveManager : MonoBehaviour
 
     private void OnDeleteSave(string saveId)
     {
-        string path = Path.Combine(saveFolder, $"{saveId}.json");
+        audioManager.PlaySFX(audioManager.buttonClick);
+        string path = Path.Combine(saveFolder, $"{saveId}.dat");
         if (File.Exists(path))
             File.Delete(path);
 
         LoadAllSaves(); // оновити список
+    }
+
+    public void OnReturnToMenuClicked()
+    {
+        audioManager.PlaySFX(audioManager.buttonClick);
+        SceneManager.LoadScene("MainMenu");
     }
 }

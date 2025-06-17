@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
+// Клас, що відповідає за реалізацію збережень
 public static class SaveSystem
 {
     private static readonly string saveFolder = Path.Combine(Application.persistentDataPath, "Saves");
@@ -83,7 +84,12 @@ public static class SaveSystem
             snapshot.remainingTiles.Add(tileData.name);
 
         var json = JsonUtility.ToJson(snapshot, true);
-        File.WriteAllText(GetSavePath(saveId), json);
+
+        AES crypto = new AES();
+        byte[]encrytpetJson = crypto.Encrypt(json);
+
+        //File.WriteAllText(saveId+".json", json);
+        File.WriteAllBytes(GetSavePath(saveId), encrytpetJson);
         Debug.Log($"[SAVE] Гру збережено: {saveId} ({snapshot.placedTiles.Count} плиток)");
     }
 
@@ -96,7 +102,11 @@ public static class SaveSystem
             return null;
         }
 
-        string json = File.ReadAllText(path);
+        byte[] encrytpetJson = File.ReadAllBytes(path);
+
+        AES crypto = new AES();
+        string json = crypto.Decrypt(encrytpetJson);
+
         return JsonUtility.FromJson<GameSnapshot>(json);
     }
 
@@ -105,7 +115,7 @@ public static class SaveSystem
         if (!Directory.Exists(saveFolder))
             return new List<string>();
 
-        var files = Directory.GetFiles(saveFolder, "*.json");
+        var files = Directory.GetFiles(saveFolder, "*.dat");
         var list = new List<string>();
         foreach (var path in files)
             list.Add(Path.GetFileNameWithoutExtension(path));
@@ -124,6 +134,6 @@ public static class SaveSystem
 
     private static string GetSavePath(string saveId)
     {
-        return Path.Combine(saveFolder, $"{saveId}.json");
+        return Path.Combine(saveFolder, $"{saveId}.dat");
     }
 }

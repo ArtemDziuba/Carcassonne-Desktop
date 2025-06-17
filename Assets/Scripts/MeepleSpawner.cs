@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
+// Клас, що відповідає за створення міплів безпосередньо у грі
 public class MeepleSpawner : MonoBehaviour
 {
     public GameObject meeplePrefab;
@@ -17,6 +18,13 @@ public class MeepleSpawner : MonoBehaviour
     private bool isPlacing;
     private MeeplePlacementSlot hoveredSlot;
     private Camera mainCamera;
+
+    AudioManager audioManager;
+
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
 
     private void Start()
     {
@@ -44,6 +52,8 @@ public class MeepleSpawner : MonoBehaviour
         // Відміна розміщення ПКМ
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
+            audioManager.PlaySFX(audioManager.meepleTakeBack);
+
             Destroy(currentMeeple);
             currentMeeple = null;
             isPlacing = false;
@@ -76,8 +86,11 @@ public class MeepleSpawner : MonoBehaviour
 
     private void TryPlaceMeeple()
     {
-        if (hoveredSlot == null) return;
-
+        if (hoveredSlot == null)
+        {
+            audioManager.PlaySFX(audioManager.reject);
+            return;
+        }
         var tile = hoveredSlot.GetComponentInParent<Tile>();
         var player = playerManager.GetCurrentPlayer();
 

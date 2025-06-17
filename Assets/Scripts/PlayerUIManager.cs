@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
+// Клас, що відповідає за керування UI гравців безпосередньо у грі
 public class PlayerUIManager : MonoBehaviour
 {
     [Header("Live Player UI")]
@@ -27,6 +28,7 @@ public class PlayerUIManager : MonoBehaviour
 
     [Header("References")]
     public PlayerManager playerManager;
+    AudioManager audioManager;
 
     void Awake()
     {
@@ -53,6 +55,8 @@ public class PlayerUIManager : MonoBehaviour
                 scrollRect.vertical = true;
             }
         }
+
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     public void InitializeUI(System.Collections.Generic.List<Player> players)
@@ -133,13 +137,43 @@ public class PlayerUIManager : MonoBehaviour
                  .GetComponent<TextMeshProUGUI>()
                  .text = (i + 1).ToString();
 
+            var gameOverEntryP1 = entry.Find("GameOverEntryP1").GetComponent<Image>();
+            gameOverEntryP1.gameObject.SetActive(false);
+            var gameOverEntryP2 = entry.Find("GameOverEntryP2").GetComponent<Image>();
+            gameOverEntryP2.gameObject.SetActive(false);
+            var gameOverEntryP3 = entry.Find("GameOverEntryP3").GetComponent<Image>();
+            gameOverEntryP3.gameObject.SetActive(false);
+
+            var gameOverNumP1 = entry.Find("GameOverNumP1").GetComponent<Image>();
+            gameOverNumP1.gameObject.SetActive(false);
+            var gameOverNumP2 = entry.Find("GameOverNumP2").GetComponent<Image>();
+            gameOverNumP2.gameObject.SetActive(false);
+            var gameOverNumP3 = entry.Find("GameOverNumP3").GetComponent<Image>();
+            gameOverNumP3.gameObject.SetActive(false);
+
+            if (i == 0)
+            {
+                gameOverEntryP1.gameObject.SetActive(true);
+                gameOverNumP1.gameObject.SetActive(true);
+            }
+            else if (i == 1)
+            {
+                gameOverEntryP2.gameObject.SetActive(true);
+                gameOverNumP2.gameObject.SetActive(true);
+            }
+            else if (i == 2)
+            {
+                gameOverEntryP3.gameObject.SetActive(true);
+                gameOverNumP3.gameObject.SetActive(true);
+            }
+           
             entry.Find("MeepleImage")
                  .GetComponent<Image>()
                  .sprite = meepleSprites[player.MeepleSpriteIndex];
 
             entry.Find("NameText")
                  .GetComponent<TextMeshProUGUI>()
-                 .text = $"Гравець {player.PlayerId + 1}";
+                 .text = player.Name;
 
             entry.Find("ScoreText")
                  .GetComponent<TextMeshProUGUI>()
@@ -150,6 +184,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public void HideGameOverUI()
     {
+        audioManager.PlaySFX(audioManager.tilePlaced);
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
     }
