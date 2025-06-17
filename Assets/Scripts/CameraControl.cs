@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static UnityEditor.SceneView;
 
 // Клас, що відповідає за поводження камери на дошці гри
 [RequireComponent(typeof(Camera))]
