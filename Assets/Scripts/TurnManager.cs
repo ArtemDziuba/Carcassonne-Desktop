@@ -17,6 +17,7 @@ public class TurnManager : MonoBehaviour
     public Button chooseTileBtn;
     public Button placeMeepleBtn;
     public Button endTurnBtn;
+    public Button unstuckBtn;
     public TextMeshProUGUI chooseTileBtnText;
 
     public bool tilePlaced = false;
@@ -47,8 +48,15 @@ public class TurnManager : MonoBehaviour
         chooseTileBtn.onClick.AddListener(OnChooseTile);
         placeMeepleBtn.onClick.AddListener(OnPlaceMeeple);
         endTurnBtn.onClick.AddListener(OnEndTurn);
-
+        unstuckBtn.onClick.AddListener(OnUnstuck);
         NextTurnSetup();
+    }        
+
+    private void OnUnstuck()
+    {
+        tileSpawner.SwapTileToDeck();
+
+        unstuckBtn.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -73,6 +81,7 @@ public class TurnManager : MonoBehaviour
         placeMeepleBtn.interactable = false;
         endTurnBtn.interactable = false;
 
+
         // Оновлюємо лічильник тайлів на кнопці
         chooseTileBtnText.text = deckManager.TilesRemaining.ToString();
 
@@ -92,6 +101,7 @@ public class TurnManager : MonoBehaviour
     {
         audioManager.PlaySFX(audioManager.buttonClick);
         // Витягаємо та спавнимо тайл
+        chooseTileBtn.interactable = false;
         tileSpawner.SpawnNextTile();
 
         ToastManager.Instance.ShowToast(ToastType.Info,
@@ -102,12 +112,12 @@ public class TurnManager : MonoBehaviour
     {
         audioManager.PlaySFX(audioManager.tilePlaced);
         tilePlaced = true;
-        chooseTileBtn.interactable = false;
 
         // Оновлюємо кнопки
         var current = playerManager.GetCurrentPlayer();
         placeMeepleBtn.interactable = current.HasMeeples();
         endTurnBtn.interactable = true;
+        unstuckBtn.gameObject.SetActive(false);
         chooseTileBtnText.text = deckManager.TilesRemaining.ToString();
     }
 

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 // Клас, що відповідає за створення та розміщення тайлів безпосередньо у грі
 public class TileSpawner : MonoBehaviour
@@ -10,6 +11,8 @@ public class TileSpawner : MonoBehaviour
     public TileDeckManager deck;
     public ShadowOverlayManager overlayManager;
     public TurnManager turnManager;
+
+    public Button unstuckBtn;
 
     private Tile currentTile;
     private Camera mainCamera;
@@ -24,6 +27,16 @@ public class TileSpawner : MonoBehaviour
     private void Update()
     {
         if (currentTile == null) return;
+
+        if (currentTile.stuckCounter >= 4)
+        {
+            unstuckBtn.gameObject.SetActive(true);
+            if (deck.IsEmpty())
+            {
+                currentTile = null;
+                return;
+            }    
+        }
 
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(mouseScreenPos);
@@ -75,6 +88,21 @@ public class TileSpawner : MonoBehaviour
                 Debug.Log("Неможливо поставити тайл: невірна позиція.");
             }
         }
+    }
+
+    public void SwapTileToDeck()
+    {
+        if (currentTile == null) return;
+
+        deck.ReturnTile(currentTile);
+
+        currentTile.stuckCounter = 0;
+
+        Destroy(currentTile.gameObject);
+        currentTile = null;
+
+        
+        SpawnNextTile();
     }
 
     public void SpawnNextTile()

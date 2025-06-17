@@ -1,4 +1,5 @@
 // TileDeckManager.cs
+using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +27,12 @@ public class TileDeckManager : MonoBehaviour
             int r = Random.Range(i, list.Count);
             (list[i], list[r]) = (list[r], list[i]);
         }
+    }
+
+    public void ReturnTile(Tile returnedTile)
+    {
+        int insertIndex = Random.Range(1, fullDeck.Count + 1);
+        fullDeck.Insert(insertIndex, returnedTile.Data);
     }
 
     /// <summary>
